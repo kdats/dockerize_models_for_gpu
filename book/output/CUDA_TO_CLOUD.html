@@ -1,0 +1,3041 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Faculty Development Programme — CUDA to Cloud" />
+  <meta name="dcterms.date" content="2026-07-25" />
+  <title>From Local CUDA to Cloud and HPC</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">From Local CUDA to Cloud and HPC</h1>
+<p class="subtitle">A Practical Guide to Moving GPU Workloads with
+Docker and Apptainer</p>
+<p class="author">Faculty Development Programme — CUDA to Cloud</p>
+<p class="date">25 July 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#preface" id="toc-preface">Preface</a></li>
+<li><a href="#the-workload-we-are-moving"
+id="toc-the-workload-we-are-moving">1. The Workload We Are Moving</a>
+<ul>
+<li><a href="#what-was-demonstrated" id="toc-what-was-demonstrated">1.1
+What was demonstrated</a></li>
+<li><a href="#three-ways-to-move-the-environment"
+id="toc-three-ways-to-move-the-environment">1.2 Three ways to move the
+environment</a></li>
+</ul></li>
+<li><a href="#the-minimum-cloud-model"
+id="toc-the-minimum-cloud-model">2. The Minimum Cloud Model</a>
+<ul>
+<li><a href="#choose-the-gpu-from-the-workload"
+id="toc-choose-the-gpu-from-the-workload">2.1 Choose the GPU from the
+workload</a></li>
+<li><a href="#gpu-memory-system-memory-and-disk"
+id="toc-gpu-memory-system-memory-and-disk">2.2 GPU memory, system
+memory, and disk</a></li>
+<li><a href="#regions-zones-quotas-and-capacity"
+id="toc-regions-zones-quotas-and-capacity">2.3 Regions, zones, quotas,
+and capacity</a></li>
+<li><a href="#storage-choices" id="toc-storage-choices">2.4 Storage
+choices</a></li>
+<li><a href="#networking-and-the-smallest-secure-path"
+id="toc-networking-and-the-smallest-secure-path">2.5 Networking and the
+smallest secure path</a></li>
+</ul></li>
+<li><a href="#virtual-machines-and-containers"
+id="toc-virtual-machines-and-containers">3. Virtual Machines and
+Containers</a>
+<ul>
+<li><a href="#why-a-container-is-not-a-small-virtual-machine"
+id="toc-why-a-container-is-not-a-small-virtual-machine">3.1 Why a
+container is not a small virtual machine</a></li>
+<li><a href="#remote-development-with-ssh-and-vs-code"
+id="toc-remote-development-with-ssh-and-vs-code">3.2 Remote development
+with SSH and VS Code</a></li>
+</ul></li>
+<li><a href="#docker-recipe-image-and-container"
+id="toc-docker-recipe-image-and-container">4. Docker: Recipe, Image, and
+Container</a>
+<ul>
+<li><a href="#dockerfile" id="toc-dockerfile">4.1 Dockerfile</a></li>
+<li><a href="#image" id="toc-image">4.2 Image</a></li>
+<li><a href="#container" id="toc-container">4.3 Container</a></li>
+<li><a href="#what---gpus-all-means" id="toc-what---gpus-all-means">4.4
+What <code>--gpus all</code> means</a></li>
+<li><a href="#build-context-and-layers"
+id="toc-build-context-and-layers">4.5 Build context and layers</a></li>
+<li><a href="#tags-and-immutable-identity"
+id="toc-tags-and-immutable-identity">4.6 Tags and immutable
+identity</a></li>
+<li><a href="#containers-are-temporary-data-is-not"
+id="toc-containers-are-temporary-data-is-not">4.7 Containers are
+temporary; data is not</a></li>
+<li><a href="#environment-variables-and-secrets"
+id="toc-environment-variables-and-secrets">4.8 Environment variables and
+secrets</a></li>
+<li><a href="#registries" id="toc-registries">4.9 Registries</a></li>
+<li><a href="#reading-a-container-command"
+id="toc-reading-a-container-command">4.10 Reading a container
+command</a></li>
+</ul></li>
+<li><a href="#the-local-to-cloud-demonstration"
+id="toc-the-local-to-cloud-demonstration">5. The Local-to-Cloud
+Demonstration</a>
+<ul>
+<li><a href="#establish-the-local-result"
+id="toc-establish-the-local-result">5.1 Establish the local
+result</a></li>
+<li><a href="#provision-a-cloud-gpu-vm"
+id="toc-provision-a-cloud-gpu-vm">5.2 Provision a cloud GPU VM</a></li>
+<li><a href="#prepare-the-host" id="toc-prepare-the-host">5.3 Prepare
+the host</a></li>
+<li><a href="#reproduce-and-run-the-workload"
+id="toc-reproduce-and-run-the-workload">5.4 Reproduce and run the
+workload</a></li>
+<li><a href="#stop-the-resource" id="toc-stop-the-resource">5.5 Stop the
+resource</a></li>
+<li><a href="#what-remains-local-and-what-moves"
+id="toc-what-remains-local-and-what-moves">5.6 What remains local and
+what moves</a></li>
+<li><a href="#rebuild-versus-registry-transfer"
+id="toc-rebuild-versus-registry-transfer">5.7 Rebuild versus registry
+transfer</a></li>
+<li><a href="#lift-and-shift-versus-refactoring"
+id="toc-lift-and-shift-versus-refactoring">5.8 Lift-and-shift versus
+refactoring</a></li>
+<li><a href="#reproducibility-is-more-than-a-dockerfile"
+id="toc-reproducibility-is-more-than-a-dockerfile">5.9 Reproducibility
+is more than a Dockerfile</a></li>
+<li><a href="#migration-acceptance-criteria"
+id="toc-migration-acceptance-criteria">5.10 Migration acceptance
+criteria</a></li>
+</ul></li>
+<li><a href="#case-study-local-gpu-to-google-cloud-l4"
+id="toc-case-study-local-gpu-to-google-cloud-l4">6. Case Study: Local
+GPU to Google Cloud L4</a>
+<ul>
+<li><a href="#local-reference-execution"
+id="toc-local-reference-execution">6.1 Local reference
+execution</a></li>
+<li><a href="#cloud-execution" id="toc-cloud-execution">6.2 Cloud
+execution</a></li>
+<li><a href="#provisioning-decisions"
+id="toc-provisioning-decisions">6.3 Provisioning decisions</a></li>
+<li><a href="#the-driver-boundary" id="toc-the-driver-boundary">6.4 The
+driver boundary</a></li>
+<li><a href="#lessons-from-failed-attempts"
+id="toc-lessons-from-failed-attempts">6.5 Lessons from failed
+attempts</a></li>
+<li><a href="#a-better-model-storage-boundary"
+id="toc-a-better-model-storage-boundary">6.6 A better model-storage
+boundary</a></li>
+<li><a href="#from-batch-inference-to-a-hosted-service"
+id="toc-from-batch-inference-to-a-hosted-service">6.7 From batch
+inference to a hosted service</a></li>
+<li><a href="#evidence-of-successful-migration"
+id="toc-evidence-of-successful-migration">6.8 Evidence of successful
+migration</a></li>
+<li><a href="#monitoring-the-workload"
+id="toc-monitoring-the-workload">6.9 Monitoring the workload</a></li>
+<li><a href="#comparing-performance-responsibly"
+id="toc-comparing-performance-responsibly">6.10 Comparing performance
+responsibly</a></li>
+<li><a href="#cost-control" id="toc-cost-control">6.11 Cost
+control</a></li>
+<li><a href="#security-boundaries" id="toc-security-boundaries">6.12
+Security boundaries</a></li>
+</ul></li>
+<li><a href="#from-docker-to-apptainer-for-hpc"
+id="toc-from-docker-to-apptainer-for-hpc">7. From Docker to Apptainer
+for HPC</a>
+<ul>
+<li><a href="#why-hpc-centres-prefer-apptainer"
+id="toc-why-hpc-centres-prefer-apptainer">7.1 Why HPC centres prefer
+Apptainer</a></li>
+<li><a href="#image-sources" id="toc-image-sources">7.2 Image
+sources</a></li>
+<li><a href="#running-with-a-gpu" id="toc-running-with-a-gpu">7.3
+Running with a GPU</a></li>
+<li><a href="#persistent-data" id="toc-persistent-data">7.4 Persistent
+data</a></li>
+<li><a href="#scheduler-integration" id="toc-scheduler-integration">7.5
+Scheduler integration</a></li>
+</ul></li>
+<li><a href="#the-complete-portability-story"
+id="toc-the-complete-portability-story">8. The Complete Portability
+Story</a></li>
+<li><a href="#guided-lab-read-the-existing-workload"
+id="toc-guided-lab-read-the-existing-workload">9. Guided Lab: Read the
+Existing Workload</a>
+<ul>
+<li><a href="#identify-the-components"
+id="toc-identify-the-components">9.1 Identify the components</a></li>
+<li><a href="#draw-the-dependency-path"
+id="toc-draw-the-dependency-path">9.2 Draw the dependency path</a></li>
+</ul></li>
+<li><a href="#guided-lab-build-and-run-locally"
+id="toc-guided-lab-build-and-run-locally">10. Guided Lab: Build and Run
+Locally</a>
+<ul>
+<li><a href="#confirm-the-host" id="toc-confirm-the-host">10.1 Confirm
+the host</a></li>
+<li><a href="#build" id="toc-build">10.2 Build</a></li>
+<li><a href="#run-with-gpu-access" id="toc-run-with-gpu-access">10.3 Run
+with GPU access</a></li>
+<li><a href="#explain-the-result" id="toc-explain-the-result">10.4
+Explain the result</a></li>
+</ul></li>
+<li><a href="#guided-lab-move-to-a-cloud-gpu"
+id="toc-guided-lab-move-to-a-cloud-gpu">11. Guided Lab: Move to a Cloud
+GPU</a>
+<ul>
+<li><a href="#before-provisioning" id="toc-before-provisioning">11.1
+Before provisioning</a></li>
+<li><a href="#provision-and-connect" id="toc-provision-and-connect">11.2
+Provision and connect</a></li>
+<li><a href="#verify-from-host-to-application"
+id="toc-verify-from-host-to-application">11.3 Verify from host to
+application</a></li>
+<li><a href="#reproduce-the-workload"
+id="toc-reproduce-the-workload">11.4 Reproduce the workload</a></li>
+<li><a href="#compare" id="toc-compare">11.5 Compare</a></li>
+<li><a href="#stop-and-inspect-billing-resources"
+id="toc-stop-and-inspect-billing-resources">11.6 Stop and inspect
+billing resources</a></li>
+</ul></li>
+<li><a href="#guided-lab-docker-to-apptainer"
+id="toc-guided-lab-docker-to-apptainer">12. Guided Lab: Docker to
+Apptainer</a>
+<ul>
+<li><a href="#obtain-a-sif-image" id="toc-obtain-a-sif-image">12.1
+Obtain a SIF image</a></li>
+<li><a href="#run-first-without-a-scheduler"
+id="toc-run-first-without-a-scheduler">12.2 Run first without a
+scheduler</a></li>
+<li><a href="#submit-through-slurm" id="toc-submit-through-slurm">12.3
+Submit through Slurm</a></li>
+<li><a href="#identify-responsibility-boundaries"
+id="toc-identify-responsibility-boundaries">12.4 Identify responsibility
+boundaries</a></li>
+</ul></li>
+<li><a href="#troubleshooting-by-boundaries"
+id="toc-troubleshooting-by-boundaries">13. Troubleshooting by
+Boundaries</a>
+<ul>
+<li><a href="#the-vm-cannot-be-created"
+id="toc-the-vm-cannot-be-created">13.1 The VM cannot be created</a></li>
+<li><a href="#nvidia-smi-fails-on-the-host"
+id="toc-nvidia-smi-fails-on-the-host">13.2 <code>nvidia-smi</code> fails
+on the host</a></li>
+<li><a href="#docker-works-but-a-gpu-test-container-fails"
+id="toc-docker-works-but-a-gpu-test-container-fails">13.3 Docker works
+but a GPU test container fails</a></li>
+<li><a href="#the-container-sees-the-gpu-but-inference-fails"
+id="toc-the-container-sees-the-gpu-but-inference-fails">13.4 The
+container sees the GPU but inference fails</a></li>
+<li><a href="#build-reports-no-disk-space"
+id="toc-build-reports-no-disk-space">13.5 Build reports no disk
+space</a></li>
+<li><a href="#a-remote-api-cannot-be-reached"
+id="toc-a-remote-api-cannot-be-reached">13.6 A remote API cannot be
+reached</a></li>
+</ul></li>
+<li><a href="#review-questions" id="toc-review-questions">14. Review
+Questions</a></li>
+<li><a href="#further-reading" id="toc-further-reading">15. Further
+Reading</a></li>
+<li><a href="#operators-manual-files-used-in-the-demonstration"
+id="toc-operators-manual-files-used-in-the-demonstration">16. Operator’s
+Manual: Files Used in the Demonstration</a>
+<ul>
+<li><a href="#placeholder-register" id="toc-placeholder-register">16.1
+Placeholder register</a></li>
+<li><a href="#directory-layout" id="toc-directory-layout">16.2 Directory
+layout</a></li>
+<li><a href="#application-code" id="toc-application-code">16.3
+Application code</a></li>
+<li><a href="#dockerfile-1" id="toc-dockerfile-1">16.4
+Dockerfile</a></li>
+<li><a href="#dockerignore" id="toc-dockerignore">16.5
+<code>.dockerignore</code></a></li>
+<li><a href="#download-the-model-on-windows"
+id="toc-download-the-model-on-windows">16.6 Download the model on
+Windows</a></li>
+<li><a href="#download-the-model-on-linux-or-wsl"
+id="toc-download-the-model-on-linux-or-wsl">16.7 Download the model on
+Linux or WSL</a></li>
+</ul></li>
+<li><a href="#operators-manual-local-windows-and-wsl2-setup"
+id="toc-operators-manual-local-windows-and-wsl2-setup">17. Operator’s
+Manual: Local Windows and WSL2 Setup</a>
+<ul>
+<li><a href="#identify-the-host-gpu" id="toc-identify-the-host-gpu">17.1
+Identify the host GPU</a></li>
+<li><a href="#verify-wsl2" id="toc-verify-wsl2">17.2 Verify
+WSL2</a></li>
+<li><a href="#verify-docker-desktop" id="toc-verify-docker-desktop">17.3
+Verify Docker Desktop</a></li>
+<li><a href="#verify-container-gpu-access"
+id="toc-verify-container-gpu-access">17.4 Verify container GPU
+access</a></li>
+<li><a href="#build-the-application-image"
+id="toc-build-the-application-image">17.5 Build the application
+image</a></li>
+<li><a href="#run-local-inference" id="toc-run-local-inference">17.6 Run
+local inference</a></li>
+<li><a href="#capture-local-evidence"
+id="toc-capture-local-evidence">17.7 Capture local evidence</a></li>
+</ul></li>
+<li><a href="#operators-manual-google-cloud-preparation"
+id="toc-operators-manual-google-cloud-preparation">18. Operator’s
+Manual: Google Cloud Preparation</a>
+<ul>
+<li><a href="#install-and-initialize-the-google-cloud-cli"
+id="toc-install-and-initialize-the-google-cloud-cli">18.1 Install and
+initialize the Google Cloud CLI</a></li>
+<li><a href="#enable-compute-engine" id="toc-enable-compute-engine">18.2
+Enable Compute Engine</a></li>
+<li><a href="#inspect-available-gpu-accelerators"
+id="toc-inspect-available-gpu-accelerators">18.3 Inspect available GPU
+accelerators</a></li>
+<li><a href="#create-an-l4-vm" id="toc-create-an-l4-vm">18.4 Create an
+L4 VM</a></li>
+<li><a href="#inspect-the-created-vm"
+id="toc-inspect-the-created-vm">18.5 Inspect the created VM</a></li>
+</ul></li>
+<li><a href="#operators-manual-ssh-and-remote-development"
+id="toc-operators-manual-ssh-and-remote-development">19. Operator’s
+Manual: SSH and Remote Development</a>
+<ul>
+<li><a href="#connect-with-the-google-cloud-cli"
+id="toc-connect-with-the-google-cloud-cli">19.1 Connect with the Google
+Cloud CLI</a></li>
+<li><a href="#generate-standard-ssh-configuration"
+id="toc-generate-standard-ssh-configuration">19.2 Generate standard SSH
+configuration</a></li>
+<li><a href="#connect-with-vs-code-remote-ssh"
+id="toc-connect-with-vs-code-remote-ssh">19.3 Connect with VS Code
+Remote SSH</a></li>
+<li><a href="#copy-the-project-through-gcloud-compute-scp"
+id="toc-copy-the-project-through-gcloud-compute-scp">19.4 Copy the
+project through <code>gcloud compute scp</code></a></li>
+</ul></li>
+<li><a href="#operators-manual-bootstrap-the-cloud-gpu-host"
+id="toc-operators-manual-bootstrap-the-cloud-gpu-host">20. Operator’s
+Manual: Bootstrap the Cloud GPU Host</a>
+<ul>
+<li><a href="#install-the-nvidia-driver"
+id="toc-install-the-nvidia-driver">20.1 Install the NVIDIA
+driver</a></li>
+<li><a href="#install-docker" id="toc-install-docker">20.2 Install
+Docker</a></li>
+<li><a href="#install-nvidia-container-toolkit"
+id="toc-install-nvidia-container-toolkit">20.3 Install NVIDIA Container
+Toolkit</a></li>
+<li><a href="#verify-the-container-to-gpu-boundary"
+id="toc-verify-the-container-to-gpu-boundary">20.4 Verify the
+container-to-GPU boundary</a></li>
+<li><a href="#reusable-bootstrap-script"
+id="toc-reusable-bootstrap-script">20.5 Reusable bootstrap
+script</a></li>
+</ul></li>
+<li><a href="#operators-manual-run-inference-on-the-cloud-gpu"
+id="toc-operators-manual-run-inference-on-the-cloud-gpu">21. Operator’s
+Manual: Run Inference on the Cloud GPU</a>
+<ul>
+<li><a href="#download-the-model" id="toc-download-the-model">21.1
+Download the model</a></li>
+<li><a href="#build-on-the-cloud-vm" id="toc-build-on-the-cloud-vm">21.2
+Build on the cloud VM</a></li>
+<li><a href="#run-the-same-workload" id="toc-run-the-same-workload">21.3
+Run the same workload</a></li>
+<li><a href="#capture-cloud-evidence"
+id="toc-capture-cloud-evidence">21.4 Capture cloud evidence</a></li>
+<li><a href="#registry-transfer-method"
+id="toc-registry-transfer-method">21.5 Registry-transfer method</a></li>
+</ul></li>
+<li><a href="#operators-manual-host-an-inference-api"
+id="toc-operators-manual-host-an-inference-api">22. Operator’s Manual:
+Host an Inference API</a>
+<ul>
+<li><a href="#start-the-server-on-the-cloud-vm"
+id="toc-start-the-server-on-the-cloud-vm">22.1 Start the server on the
+cloud VM</a></li>
+<li><a href="#watch-startup-logs" id="toc-watch-startup-logs">22.2 Watch
+startup logs</a></li>
+<li><a href="#test-from-inside-the-vm"
+id="toc-test-from-inside-the-vm">22.3 Test from inside the VM</a></li>
+<li><a href="#use-ssh-port-forwarding"
+id="toc-use-ssh-port-forwarding">22.4 Use SSH port forwarding</a></li>
+<li><a href="#stop-the-server" id="toc-stop-the-server">22.5 Stop the
+server</a></li>
+</ul></li>
+<li><a href="#operators-manual-stop-start-and-delete-gcp-resources"
+id="toc-operators-manual-stop-start-and-delete-gcp-resources">23.
+Operator’s Manual: Stop, Start, and Delete GCP Resources</a>
+<ul>
+<li><a href="#stop-while-preserving-the-boot-disk"
+id="toc-stop-while-preserving-the-boot-disk">23.1 Stop while preserving
+the boot disk</a></li>
+<li><a href="#restart-later" id="toc-restart-later">23.2 Restart
+later</a></li>
+<li><a href="#delete-the-vm" id="toc-delete-the-vm">23.3 Delete the
+VM</a></li>
+<li><a href="#audit-remaining-resources"
+id="toc-audit-remaining-resources">23.4 Audit remaining
+resources</a></li>
+<li><a href="#minimal-powershell-lifecycle-script"
+id="toc-minimal-powershell-lifecycle-script">23.5 Minimal PowerShell
+lifecycle script</a></li>
+</ul></li>
+<li><a href="#operators-manual-apptainer-and-singularity-for-hpc"
+id="toc-operators-manual-apptainer-and-singularity-for-hpc">24.
+Operator’s Manual: Apptainer and Singularity for HPC</a>
+<ul>
+<li><a href="#install-on-ubuntu-or-wsl2"
+id="toc-install-on-ubuntu-or-wsl2">24.1 Install on Ubuntu or
+WSL2</a></li>
+<li><a href="#verify-the-runtime-and-gpu-allocation"
+id="toc-verify-the-runtime-and-gpu-allocation">24.2 Verify the runtime
+and GPU allocation</a></li>
+<li><a href="#convert-from-a-registry-image"
+id="toc-convert-from-a-registry-image">24.3 Convert from a registry
+image</a></li>
+<li><a href="#copy-image-and-model-to-the-cluster"
+id="toc-copy-image-and-model-to-the-cluster">24.4 Copy image and model
+to the cluster</a></li>
+<li><a href="#run-interactively-on-an-allocated-gpu-node"
+id="toc-run-interactively-on-an-allocated-gpu-node">24.5 Run
+interactively on an allocated GPU node</a></li>
+<li><a href="#execute-a-specific-command"
+id="toc-execute-a-specific-command">24.6 Execute a specific
+command</a></li>
+<li><a href="#slurm-job-script" id="toc-slurm-job-script">24.7 Slurm job
+script</a></li>
+</ul></li>
+<li><a href="#expected-outputs-and-checkpoints"
+id="toc-expected-outputs-and-checkpoints">25. Expected Outputs and
+Checkpoints</a></li>
+<li><a href="#troubleshooting-command-index"
+id="toc-troubleshooting-command-index">26. Troubleshooting Command
+Index</a>
+<ul>
+<li><a href="#identity-and-project" id="toc-identity-and-project">26.1
+Identity and project</a></li>
+<li><a href="#vm-and-zone" id="toc-vm-and-zone">26.2 VM and
+zone</a></li>
+<li><a href="#disk" id="toc-disk">26.3 Disk</a></li>
+<li><a href="#driver" id="toc-driver">26.4 Driver</a></li>
+<li><a href="#docker" id="toc-docker">26.5 Docker</a></li>
+<li><a href="#gpu-inside-docker" id="toc-gpu-inside-docker">26.6 GPU
+inside Docker</a></li>
+<li><a href="#image-build" id="toc-image-build">26.7 Image
+build</a></li>
+<li><a href="#server-reachability" id="toc-server-reachability">26.8
+Server reachability</a></li>
+<li><a href="#apptainer" id="toc-apptainer">26.9 Apptainer</a></li>
+</ul></li>
+<li><a href="#instructor-rehearsal-and-delivery-runbook"
+id="toc-instructor-rehearsal-and-delivery-runbook">27. Instructor
+Rehearsal and Delivery Runbook</a>
+<ul>
+<li><a href="#one-day-before-delivery"
+id="toc-one-day-before-delivery">27.1 One day before delivery</a></li>
+<li><a href="#files-to-keep-open-during-the-session"
+id="toc-files-to-keep-open-during-the-session">27.2 Files to keep open
+during the session</a></li>
+<li><a href="#demonstration-sequence"
+id="toc-demonstration-sequence">27.3 Demonstration sequence</a></li>
+<li><a href="#commands-to-avoid-typing-live"
+id="toc-commands-to-avoid-typing-live">27.4 Commands to avoid typing
+live</a></li>
+<li><a href="#evidence-pack" id="toc-evidence-pack">27.5 Evidence
+pack</a></li>
+</ul></li>
+<li><a href="#appendix-a.-essential-commands"
+id="toc-appendix-a.-essential-commands">Appendix A. Essential
+Commands</a></li>
+<li><a href="#appendix-b.-book-development-notes"
+id="toc-appendix-b.-book-development-notes">Appendix B. Book Development
+Notes</a></li>
+<li><a href="#appendix-c.-glossary"
+id="toc-appendix-c.-glossary">Appendix C. Glossary</a></li>
+</ul>
+</nav>
+<h1 id="preface">Preface</h1>
+<p>GPU programming does not end when a CUDA kernel or AI model runs
+successfully on a developer’s workstation. The next challenge is
+portability: running the same workload on another GPU machine without
+repeating days of environment setup and debugging.</p>
+<p>This book follows one practical journey. We begin with an AI
+inference workload running on a local NVIDIA GPU. We then reproduce the
+workload on a cloud GPU virtual machine. Docker gives us a repeatable
+software environment, while Apptainer extends the same container
+approach to shared high-performance computing systems.</p>
+<p>The objective is not to survey every service offered by AWS, Azure,
+or Google Cloud. It is to understand the small set of ideas that remain
+constant across all three providers:</p>
+<ol type="1">
+<li>A GPU workload has code, dependencies, data or model weights, and
+hardware requirements.</li>
+<li>A cloud GPU is attached to a virtual machine that must be
+provisioned, secured, monitored, and stopped when it is no longer
+needed.</li>
+<li>A container packages the user-space software environment, but it
+does not contain the physical GPU or replace the host’s NVIDIA
+driver.</li>
+<li>Repeating the same workload successfully on a different machine is
+the practical test of portability.</li>
+</ol>
+<h1 id="the-workload-we-are-moving">1. The Workload We Are Moving</h1>
+<p>The phrase <em>move a workload</em> can sound more complicated than
+it is. A workload is simply everything required to perform a useful
+computation.</p>
+<p>For the demonstration used in this programme, the useful computation
+is language-model inference. A prompt is submitted to a small language
+model, the model performs numerical operations using a GPU, and
+generated text is returned.</p>
+<p>The workload contains:</p>
+<ul>
+<li>the Python application that submits the prompt;</li>
+<li>the <code>llama.cpp</code> Python runtime used for inference;</li>
+<li>the quantized SmolLM model file;</li>
+<li>CUDA-compatible user-space libraries;</li>
+<li>an execution command; and</li>
+<li>access to an NVIDIA GPU through the container runtime.</li>
+</ul>
+<p>The workload is not identical to a Docker image. A Docker image is
+one way to package much of the workload. Model files can be included in
+an image, downloaded during setup, or mounted separately. Likewise,
+credentials and changing datasets should normally remain outside the
+image.</p>
+<h2 id="what-was-demonstrated">1.1 What was demonstrated</h2>
+<p>The workload first ran on a local NVIDIA GPU. The same application,
+dependencies, model, and execution pattern were then reproduced on a
+Google Cloud GPU virtual machine. Successful inference on both systems
+established the essential result:</p>
+<pre class="text"><code>Local NVIDIA GPU                         Google Cloud GPU
+----------------                         ----------------
+same application       -------------&gt;    same application
+same model             -------------&gt;    same model
+same container recipe  -------------&gt;    same container recipe
+GPU inference          -------------&gt;    GPU inference</code></pre>
+<p>The previously built Docker image did not have to be copied
+byte-for-byte to the cloud. Rebuilding from the same Dockerfile is still
+a valid migration method. Transferring a prebuilt image through a
+registry is another method, discussed later.</p>
+<h2 id="three-ways-to-move-the-environment">1.2 Three ways to move the
+environment</h2>
+<p>There are three common approaches.</p>
+<h3 id="manual-reconstruction">Manual reconstruction</h3>
+<p>Copy the application to the cloud VM, install Python and every
+dependency, download the model, and run the program. This works, but it
+is easy for local and cloud environments to diverge.</p>
+<h3 id="rebuild-from-a-container-recipe">Rebuild from a container
+recipe</h3>
+<p>Copy the source code and Dockerfile, then build the image on the
+cloud VM. This is the approach used in the practical exercise. The
+Dockerfile acts as an executable record of the environment.</p>
+<h3 id="transfer-a-prebuilt-image">Transfer a prebuilt image</h3>
+<p>Build once, push the image to a container registry, and pull it on
+the cloud VM. This avoids rebuilding and ensures that the same packaged
+artifact is executed in both places.</p>
+<p>None of these changes the meaning of workload migration. They differ
+only in how the software environment is transported or
+reconstructed.</p>
+<h1 id="the-minimum-cloud-model">2. The Minimum Cloud Model</h1>
+<p>A cloud GPU workload needs four infrastructure elements:</p>
+<ol type="1">
+<li><strong>Compute:</strong> a virtual machine with a suitable
+GPU.</li>
+<li><strong>Storage:</strong> a boot disk plus storage for code, models,
+data, and results.</li>
+<li><strong>Networking:</strong> a controlled path for administration
+and data transfer.</li>
+<li><strong>Identity and access:</strong> rules defining who can create
+and connect to resources.</li>
+</ol>
+<p>The provider names differ, but the concepts remain stable.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Need</th>
+<th>AWS</th>
+<th>Microsoft Azure</th>
+<th>Google Cloud</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU virtual machine</td>
+<td>EC2 GPU instance</td>
+<td>N-series virtual machine</td>
+<td>Compute Engine with GPU</td>
+</tr>
+<tr>
+<td>Object storage</td>
+<td>Amazon S3</td>
+<td>Azure Blob Storage</td>
+<td>Cloud Storage</td>
+</tr>
+<tr>
+<td>Container registry</td>
+<td>Amazon ECR</td>
+<td>Azure Container Registry</td>
+<td>Artifact Registry</td>
+</tr>
+<tr>
+<td>Managed batch jobs</td>
+<td>AWS Batch</td>
+<td>Azure Batch</td>
+<td>Google Cloud Batch</td>
+</tr>
+</tbody>
+</table>
+<p>Learning one provider deeply is more useful than memorizing three
+user interfaces. Once compute, storage, networking, and identity are
+understood, the mapping to another provider is mostly a vocabulary
+exercise.</p>
+<h2 id="choose-the-gpu-from-the-workload">2.1 Choose the GPU from the
+workload</h2>
+<p>Do not begin with a provider’s longest instance list. Begin with the
+workload.</p>
+<p>For inference, ask:</p>
+<ol type="1">
+<li>How much GPU memory is required to load the model?</li>
+<li>Which numerical precision or quantization does the runtime use?</li>
+<li>Is the workload one interactive request, a stream of requests, or a
+batch?</li>
+<li>Does it require one GPU or communication between multiple GPUs?</li>
+<li>Is the objective compatibility, low latency, throughput, or minimum
+cost?</li>
+</ol>
+<p>For a small quantized model, a single inference-oriented GPU is
+enough. Large-model training has entirely different memory,
+interconnect, storage-throughput, and multi-node requirements. Choosing
+an H100 for a tiny instructional model would demonstrate cloud
+provisioning, but not sound engineering judgment.</p>
+<p>The names evolve over time. AWS groups GPU-equipped offerings under
+accelerated-computing EC2 instances. Azure lists GPU-optimized families
+including NC and ND for compute-oriented work. Google Cloud offers
+accelerator-optimized machine series and also permits selected GPUs on
+some general-purpose machine types. Always inspect the current provider
+documentation for availability and compatibility.</p>
+<h2 id="gpu-memory-system-memory-and-disk">2.2 GPU memory, system
+memory, and disk</h2>
+<p>These three capacities are different:</p>
+<ul>
+<li><strong>GPU memory (VRAM)</strong> holds model parameters,
+activations, CUDA workspaces, and other device data.</li>
+<li><strong>System memory (RAM)</strong> holds the operating system,
+application processes, preprocessing data, and any model portions not
+resident on the GPU.</li>
+<li><strong>Disk</strong> stores the operating system, container layers,
+model files, build cache, inputs, and results.</li>
+</ul>
+<p>A machine can have sufficient disk space for a model but insufficient
+VRAM to execute it. It can also have sufficient VRAM but run out of disk
+space while building the container.</p>
+<p>For a first estimate:</p>
+<pre class="text"><code>VRAM requirement
+≈ model weights
++ runtime workspace
++ input/output state
++ safety margin</code></pre>
+<p>Measure the actual application after the estimate. Quantization
+reduces the storage and memory occupied by model weights, but it does
+not make every other memory cost disappear.</p>
+<h2 id="regions-zones-quotas-and-capacity">2.3 Regions, zones, quotas,
+and capacity</h2>
+<p>A provider may advertise a GPU without making it immediately
+available to every account in every location.</p>
+<ul>
+<li>A <strong>region</strong> is a geographic cloud location.</li>
+<li>A <strong>zone</strong> is an isolated deployment area within a
+region.</li>
+<li>A <strong>quota</strong> limits how many resources an account may
+allocate.</li>
+<li><strong>Capacity</strong> indicates whether the requested hardware
+is presently available in the selected location.</li>
+</ul>
+<p>Before a scheduled demonstration, confirm quota and create the
+intended instance in the intended zone. A command can be syntactically
+correct and still fail because quota is zero or regional capacity is
+unavailable.</p>
+<h2 id="storage-choices">2.4 Storage choices</h2>
+<p>Use the VM boot disk for the operating system and temporary working
+files. Use persistent disks when files must remain attached to the VM
+across stops and starts. Use object storage for durable datasets,
+models, results, and sharing between machines.</p>
+<p>Object storage is not a normal mounted directory by default.
+Applications usually upload and download objects through a command-line
+tool, library, or managed filesystem layer. For a small demonstration,
+downloading a model directly to the VM is adequate. For a repeatable
+project, record the exact object location, version, and integrity
+information.</p>
+<h2 id="networking-and-the-smallest-secure-path">2.5 Networking and the
+smallest secure path</h2>
+<p>Administrative access normally requires SSH. An externally reachable
+inference API additionally requires an ingress firewall rule and a
+published container port.</p>
+<p>These are different paths:</p>
+<pre class="text"><code>Administrator --SSH/22--&gt; VM shell
+
+Client --HTTP/application port--&gt; containerized inference server</code></pre>
+<p>Opening SSH does not automatically publish the application.
+Publishing a Docker port does not automatically permit traffic through
+the cloud firewall. Both layers must allow the intended connection.</p>
+<p>For a teaching deployment, expose only the required port, restrict
+the source where practical, avoid placing credentials in command history
+or images, and remove temporary rules after the demonstration.</p>
+<h1 id="virtual-machines-and-containers">3. Virtual Machines and
+Containers</h1>
+<p>A virtual machine and a container solve different isolation
+problems.</p>
+<p>A virtual machine presents virtualized hardware and runs its own
+guest operating-system kernel. A cloud GPU VM is therefore a complete
+remote computer that can be started, connected to, stopped, and
+deleted.</p>
+<p>A container isolates an application and its user-space environment
+while sharing the host kernel. It packages files, libraries, environment
+settings, and the startup command. Containers normally start faster and
+use less storage than complete virtual machines.</p>
+<p>In the demonstrated architecture, these layers are nested:</p>
+<pre class="text"><code>Physical cloud server
+└── GPU virtual machine
+    └── Linux operating system and NVIDIA driver
+        └── Docker runtime
+            └── AI inference container
+                └── application and model</code></pre>
+<p>The virtual machine supplies the remote computer. Docker supplies the
+repeatable application environment.</p>
+<h2 id="why-a-container-is-not-a-small-virtual-machine">3.1 Why a
+container is not a small virtual machine</h2>
+<p>A container image may contain an Ubuntu filesystem, but it does not
+boot an Ubuntu kernel. Processes inside the container ultimately use the
+host kernel. This is why a Linux container requires a Linux kernel,
+supplied on Windows by Docker Desktop’s Linux VM or WSL2
+integration.</p>
+<p>The distinction matters for GPUs. Kernel-level NVIDIA driver
+components live on the host. The container cannot bring an arbitrary
+replacement kernel driver. It brings the application and compatible
+user-space libraries, while the GPU-aware runtime connects them to the
+host driver and device.</p>
+<h2 id="remote-development-with-ssh-and-vs-code">3.2 Remote development
+with SSH and VS Code</h2>
+<p>SSH is the essential remote-management mechanism. VS Code Remote SSH
+provides an editor and terminal interface over the same connection; it
+does not replace SSH or move computation back to the laptop.</p>
+<p>The flow is:</p>
+<pre class="text"><code>Local VS Code interface
+        |
+        | SSH connection
+        v
+VS Code server on cloud VM
+        |
+        v
+Files, terminal, Docker and GPU execute remotely</code></pre>
+<p>When a remote folder is open, terminal commands execute on the VM.
+This must be visible to students: the editor window is local, but the
+filesystem and process are remote.</p>
+<p>A minimal SSH configuration entry is:</p>
+<pre class="text"><code>Host gpu-cloud
+    HostName CLOUD_PUBLIC_IP
+    User CLOUD_USER
+    IdentityFile PATH_TO_PRIVATE_KEY</code></pre>
+<p>After connecting, verify location before running expensive or
+destructive commands:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">pwd</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span></code></pre></div>
+<p>Dev Containers can subsequently open the remote project inside its
+declared container environment. That is useful in development, but it is
+not required to explain workload migration; Remote SSH plus ordinary
+Docker commands is the clearer foundation.</p>
+<h1 id="docker-recipe-image-and-container">4. Docker: Recipe, Image, and
+Container</h1>
+<p>Three terms form the foundation of Docker.</p>
+<h2 id="dockerfile">4.1 Dockerfile</h2>
+<p>A Dockerfile is a text recipe. It states which base environment to
+use, which dependencies to install, which application files to copy, and
+which command to execute.</p>
+<h2 id="image">4.2 Image</h2>
+<p>An image is the read-only packaged result produced by
+<code>docker build</code>. Images are identified by names and tags such
+as <code>gpu-demo:v1</code>.</p>
+<h2 id="container">4.3 Container</h2>
+<p>A container is a running instance of an image. Multiple containers
+can be started from the same image. The <code>--rm</code> option removes
+the stopped container after the program finishes; it does not delete the
+image.</p>
+<p>The lifecycle is:</p>
+<pre class="text"><code>Dockerfile
+    |
+    | docker build -t gpu-demo:v1 .
+    v
+Image: gpu-demo:v1
+    |
+    | docker run --rm --gpus all gpu-demo:v1
+    v
+Running container with GPU access</code></pre>
+<h2 id="what---gpus-all-means">4.4 What <code>--gpus all</code>
+means</h2>
+<p>The image does not contain the physical GPU. The NVIDIA driver
+belongs to the host operating system. When Docker starts the container
+with <code>--gpus all</code>, the NVIDIA Container Toolkit exposes the
+permitted GPU devices and driver capabilities to the process inside the
+container.</p>
+<p>This separation explains two observations:</p>
+<ul>
+<li>the same image can run on machines with different compatible NVIDIA
+GPUs; and</li>
+<li>a GPU-aware application may report no GPU when the container is
+started without GPU access.</li>
+</ul>
+<h2 id="build-context-and-layers">4.5 Build context and layers</h2>
+<p>The final dot in the build command is meaningful:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> gpu-demo:v1 .</span></code></pre></div>
+<p>It identifies the current directory as the <strong>build
+context</strong>. <code>COPY</code> instructions can use files from this
+context. Docker sends the required context to the builder, so placing
+unrelated models, datasets, archives, or secrets in the directory can
+slow the build or expose files unintentionally.</p>
+<p>A <code>.dockerignore</code> file excludes items that do not belong
+in the context:</p>
+<pre class="text"><code>.git
+models/
+results/
+*.tar
+*.sif
+.env</code></pre>
+<p>Each Dockerfile instruction contributes to an image’s layer history.
+If an early instruction changes, later layers normally need to be
+rebuilt. Stable operations should therefore appear before frequently
+changing application code.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> RUNTIME_BASE</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> requirements.txt .</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">pip</span> install <span class="at">--no-cache-dir</span> <span class="at">-r</span> requirements.txt</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> app.py .</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> [<span class="st">&quot;python&quot;</span>, <span class="st">&quot;app.py&quot;</span>]</span></code></pre></div>
+<p>Dependencies change less often than <code>app.py</code>, so Docker
+can reuse the dependency layer while rebuilding only the final
+application layer.</p>
+<h2 id="tags-and-immutable-identity">4.6 Tags and immutable
+identity</h2>
+<p>The tag in <code>gpu-demo:v1</code> is a human-readable pointer. It
+can be reassigned to a different image. The image digest identifies
+exact content.</p>
+<p>For classroom iteration, <code>v1</code> and <code>v2</code> are
+understandable tags. For reproducible research or deployment, preserve
+the source revision, dependency versions, base-image digest, model
+version, and resulting image digest.</p>
+<p>Avoid using <code>latest</code> as if it meant “tested.” It is merely
+a conventional tag name.</p>
+<h2 id="containers-are-temporary-data-is-not">4.7 Containers are
+temporary; data is not</h2>
+<p>The writable layer of a container is tied to that container. When a
+temporary container is removed, changes inside that layer disappear.
+Inputs and results should therefore live outside it.</p>
+<p>A bind mount maps an existing host directory into the container:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/results&quot;</span>,target=/results <span class="dt">\</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  gpu-demo:v1</span></code></pre></div>
+<p>The model mount is read-only because inference need not modify it.
+The results mount is writable. This makes ownership explicit and allows
+another container or host program to use the same files.</p>
+<p>A Docker-managed volume also persists independently of a
+container:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> volume create model-cache</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--mount</span> source=model-cache,target=/models gpu-demo:v1</span></code></pre></div>
+<p>Bind mounts are easiest when a student should see ordinary host
+files. Named volumes are useful when Docker should manage the storage
+location.</p>
+<h2 id="environment-variables-and-secrets">4.8 Environment variables and
+secrets</h2>
+<p>Runtime settings can be passed without rebuilding:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-e</span> MAX_TOKENS=100 gpu-demo:v1</span></code></pre></div>
+<p>Environment variables are appropriate for non-secret configuration,
+but they can be visible through process or container inspection. Cloud
+credentials and private keys must not be copied into the Dockerfile or
+committed to Git. Use provider identity roles or an appropriate secrets
+mechanism.</p>
+<h2 id="registries">4.9 Registries</h2>
+<p>A registry stores and distributes container images. The sequence
+is:</p>
+<pre class="text"><code>Local image
+    | tag
+    | push
+    v
+Registry repository
+    | pull
+    v
+Cloud VM or build system</code></pre>
+<p>Docker Hub is convenient for demonstrations. AWS ECR, Azure Container
+Registry, and Google Artifact Registry integrate with their respective
+identity systems. Private images require authentication, while public
+images should never contain private source, credentials, or licensed
+data that cannot be redistributed.</p>
+<h2 id="reading-a-container-command">4.10 Reading a container
+command</h2>
+<p>Consider:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="at">-p</span> 8080:8080 <span class="dt">\</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models:/models:ro&quot;</span> <span class="dt">\</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  IMAGE_NAME SERVER_ARGUMENTS</span></code></pre></div>
+<p>Read it from left to right:</p>
+<ul>
+<li><code>docker run</code> creates and starts a container;</li>
+<li><code>--rm</code> removes the stopped container;</li>
+<li><code>--gpus all</code> grants GPU access;</li>
+<li><code>-p 8080:8080</code> maps host port 8080 to container port
+8080;</li>
+<li><code>-v ...:/models:ro</code> mounts model files read-only;</li>
+<li><code>IMAGE_NAME</code> selects the packaged environment; and</li>
+<li>the remaining values become arguments for the containerized
+program.</li>
+</ul>
+<p>Understanding one complete command is more useful than memorizing
+many unrelated Docker options.</p>
+<h1 id="the-local-to-cloud-demonstration">5. The Local-to-Cloud
+Demonstration</h1>
+<p>The demonstration should be understood as five essential stages.</p>
+<h2 id="establish-the-local-result">5.1 Establish the local result</h2>
+<p>Run the inference workload on the local GPU and retain the prompt,
+generated response, GPU identification, and execution command. This
+becomes the reference result.</p>
+<h2 id="provision-a-cloud-gpu-vm">5.2 Provision a cloud GPU VM</h2>
+<p>Create a GPU-enabled VM in one region and zone. GPU availability
+depends on provider quota and regional capacity. The selected GPU need
+not match the local GPU exactly; the goal is application portability,
+not identical performance.</p>
+<h2 id="prepare-the-host">5.3 Prepare the host</h2>
+<p>The VM needs a working NVIDIA driver, Docker, and NVIDIA Container
+Toolkit. A successful <code>nvidia-smi</code> confirms that the
+operating system can communicate with the GPU. A successful GPU-aware
+Docker test confirms that containers can receive GPU access.</p>
+<h2 id="reproduce-and-run-the-workload">5.4 Reproduce and run the
+workload</h2>
+<p>Transfer or retrieve the Dockerfile and application, obtain the
+model, build the image, and run the same inference command. The expected
+proof is not identical execution time or word-for-word generated text.
+The proof is that the same workload executes correctly using the cloud
+GPU without application redesign.</p>
+<h2 id="stop-the-resource">5.5 Stop the resource</h2>
+<p>GPU VMs are billed resources. Stop or delete the VM when the exercise
+ends, and inspect disks, reserved addresses, snapshots, and other
+retained resources separately. Stopping compute does not necessarily
+remove every related charge.</p>
+<h2 id="what-remains-local-and-what-moves">5.6 What remains local and
+what moves</h2>
+<p>It helps to classify the parts of the workload before migration.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part</th>
+<th>Typical treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Application source</td>
+<td>Copy, clone from Git, or include in the image</td>
+</tr>
+<tr>
+<td>Python and native libraries</td>
+<td>Install manually or package in the image</td>
+</tr>
+<tr>
+<td>Model weights</td>
+<td>Download from a model repository or mount from storage</td>
+</tr>
+<tr>
+<td>Input dataset</td>
+<td>Transfer to object storage or mount from shared storage</td>
+</tr>
+<tr>
+<td>Secrets and credentials</td>
+<td>Supply at runtime; never bake into the image</td>
+</tr>
+<tr>
+<td>NVIDIA driver</td>
+<td>Install on the host VM</td>
+</tr>
+<tr>
+<td>CUDA user-space runtime</td>
+<td>Install on the host or package in the container</td>
+</tr>
+<tr>
+<td>Results</td>
+<td>Write to persistent disk or object storage</td>
+</tr>
+</tbody>
+</table>
+<p>This explains why workload migration does not require copying one
+enormous file. Different components can move through the mechanism best
+suited to them.</p>
+<h2 id="rebuild-versus-registry-transfer">5.7 Rebuild versus registry
+transfer</h2>
+<p>The practical exercise rebuilt the image on the cloud VM. This made
+the Dockerfile the portable artifact:</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> gpu-demo:v1 .</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all gpu-demo:v1</span></code></pre></div>
+<p>A registry-based workflow instead builds locally, attaches a
+registry-qualified name, pushes the image, and pulls it on the cloud
+VM:</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> tag gpu-demo:v1 REGISTRY/ACCOUNT/gpu-demo:v1</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> push REGISTRY/ACCOUNT/gpu-demo:v1</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># On the cloud VM</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> pull REGISTRY/ACCOUNT/gpu-demo:v1</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all REGISTRY/ACCOUNT/gpu-demo:v1</span></code></pre></div>
+<p>Rebuilding is appropriate for learning and for transparent recipes.
+Registry transfer is valuable when an exact tested artifact must be
+promoted between environments. Both are valid ways to move the
+workload.</p>
+<h2 id="lift-and-shift-versus-refactoring">5.8 Lift-and-shift versus
+refactoring</h2>
+<p><strong>Lift-and-shift</strong> preserves the application
+architecture while changing where it runs. A local command-line
+inference program is copied or containerized and executed on a cloud GPU
+VM with minimal code change.</p>
+<p>This approach is suitable for rapid access to a different GPU,
+temporary computation, validation on a second environment, or migration
+with low development effort. Its limitation is that the application
+still behaves like a local program: a user connects to the VM, starts
+the command, watches output, and manages files.</p>
+<p><strong>Refactoring</strong> changes the application to use
+cloud-oriented services or operating patterns. Examples include
+converting the command-line program into an inference API, reading
+models from object storage, submitting batch jobs, using a managed
+endpoint, or adding automatic scaling.</p>
+<p>Refactoring adds development work and provider-specific decisions. A
+sound sequence is:</p>
+<pre class="text"><code>1. Prove the unchanged workload on one cloud GPU.
+2. Identify the actual operational limitation.
+3. Refactor only the part that solves that limitation.</code></pre>
+<p>The demonstrated local-to-GCP inference is primarily lift-and-shift.
+Running a network inference server is a small refactoring that changes
+how clients reach the workload without changing its fundamental GPU
+computation.</p>
+<h2 id="reproducibility-is-more-than-a-dockerfile">5.9 Reproducibility
+is more than a Dockerfile</h2>
+<p>A Dockerfile improves reproducibility, but floating versions and
+remote downloads can produce different images on different days.</p>
+<p>A reproducibility record should include:</p>
+<ul>
+<li>source-code and Dockerfile revisions;</li>
+<li>base-image tag or digest;</li>
+<li>exact dependency versions;</li>
+<li>model repository, filename, quantization, and revision;</li>
+<li>build command and relevant build arguments;</li>
+<li>final image digest;</li>
+<li>host GPU and driver version; and</li>
+<li>the execution command.</li>
+</ul>
+<pre class="text"><code>Repeatable recipe: “I can perform these steps again.”
+Reproducible artifact: “I can identify and run the same packaged result.”
+Reproducible experiment: “I can recreate the inputs, environment and method.”</code></pre>
+<p>Containerization contributes to all three, but it does not
+automatically version datasets, models, prompts, random seeds, or cloud
+infrastructure.</p>
+<h2 id="migration-acceptance-criteria">5.10 Migration acceptance
+criteria</h2>
+<p>Before declaring a migration successful, define the expected result.
+For this inference workload:</p>
+<ul>
+<li>the container starts on the cloud VM;</li>
+<li>the intended model is loaded;</li>
+<li>the application demonstrates GPU offload;</li>
+<li>the prompt receives a valid response;</li>
+<li>required results or logs are retained; and</li>
+<li>the VM can be stopped or deleted without losing required
+output.</li>
+</ul>
+<p>Performance equality is not required because the GPUs differ.
+Identical generated text is not required unless deterministic generation
+is configured. The acceptance criterion is functional equivalence of the
+intended workload.</p>
+<h1 id="case-study-local-gpu-to-google-cloud-l4">6. Case Study: Local
+GPU to Google Cloud L4</h1>
+<p>The project repository records an actual migration attempt using a
+local NVIDIA GPU and a Google Cloud VM equipped with an NVIDIA L4. The
+application performed inference with a quantized SmolLM model through a
+CUDA-enabled <code>llama.cpp</code> runtime.</p>
+<p>The value of this case study is not that every cloud migration should
+use the same VM, driver, or model. Its value is that it exposes the
+boundaries between application, container, operating system, driver,
+storage, and network.</p>
+<h2 id="local-reference-execution">6.1 Local reference execution</h2>
+<p>The local execution established four facts:</p>
+<ol type="1">
+<li>Docker could start Linux containers through WSL2.</li>
+<li>The NVIDIA Container Toolkit could expose the local GPU to a
+container.</li>
+<li>The model could be loaded by the inference runtime.</li>
+<li>A prompt produced generated text.</li>
+</ol>
+<p>These facts form the baseline. Without a working local reference, a
+cloud failure could be caused either by the application or by the new
+infrastructure.</p>
+<h2 id="cloud-execution">6.2 Cloud execution</h2>
+<p>The cloud side repeated the same essential layers:</p>
+<pre class="text"><code>Google Cloud GPU VM
+├── Ubuntu host
+├── NVIDIA driver
+├── Docker Engine
+├── NVIDIA Container Toolkit
+└── CUDA-enabled inference container
+    ├── llama.cpp runtime
+    ├── SmolLM model
+    └── prompt and generated response</code></pre>
+<p>The hardware changed from the local GPU to an L4, but the
+application-level operation remained inference through the same runtime
+and model family. This is the portability claim being demonstrated.</p>
+<h2 id="provisioning-decisions">6.3 Provisioning decisions</h2>
+<p>The VM needs enough CPU, memory, disk space, and GPU capacity for the
+chosen workload. The project discovered that a small default boot disk
+was insufficient for container layers, build cache, packages, and model
+weights. The corrected deployment used a larger boot disk.</p>
+<p>This produces a general sizing method:</p>
+<pre class="text"><code>required disk space
+= operating system
++ installed packages and drivers
++ Docker image layers and build cache
++ model weights and datasets
++ working space and results</code></pre>
+<p>GPU memory must be considered separately. A model may fit on disk but
+fail to load into GPU memory. Quantization reduces the model’s memory
+requirement and makes a small instructional workload practical.</p>
+<h2 id="the-driver-boundary">6.4 The driver boundary</h2>
+<p>The NVIDIA driver is installed on the VM host. It connects the
+operating-system kernel to the physical GPU. The container carries the
+application and compatible user-space CUDA libraries.</p>
+<p>Verification therefore proceeds from the outside inward:</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Host can see the GPU</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Docker can start containers</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> hello-world</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co"># A container can see the GPU</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all CUDA_TEST_IMAGE nvidia-smi</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The application can use the GPU</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all gpu-demo:v1</span></code></pre></div>
+<p>Each command tests one boundary. If the host cannot see the GPU,
+changing the application will not help. If the host sees the GPU but the
+container does not, the container runtime configuration is the likely
+boundary to inspect.</p>
+<h2 id="lessons-from-failed-attempts">6.5 Lessons from failed
+attempts</h2>
+<h3 id="disk-exhaustion">Disk exhaustion</h3>
+<p>Container builds temporarily retain layers and download archives. The
+project encountered a <code>No space left on device</code> error on a
+small boot disk. The lesson is to check available space before a build
+and include build cache in sizing calculations.</p>
+<h3 id="operating-system-and-driver-compatibility">Operating-system and
+driver compatibility</h3>
+<p>One attempted operating-system image did not provide the expected
+kernel-header path for the chosen driver installation process. Moving to
+an Ubuntu image with a supported driver path resolved that attempt. The
+transferable lesson is to select a documented, supported combination of
+cloud image, kernel, and NVIDIA driver rather than assuming every Linux
+image behaves identically.</p>
+<h3 id="non-interactive-package-setup">Non-interactive package
+setup</h3>
+<p>An existing keyring file caused a package-signing command to wait for
+confirmation. Automated setup must either be deliberately interactive or
+explicitly non-interactive. A command that works once by hand is not
+automatically a reliable provisioning script.</p>
+<h3 id="container-build-networking">Container build networking</h3>
+<p>A large model download stalled while building through Docker’s bridge
+network. Building with the host network resolved the observed case. The
+broader lesson is to separate application errors from infrastructure
+transfer problems and to avoid downloading large, changing model files
+inside an image build when they can be managed as external data.</p>
+<h2 id="a-better-model-storage-boundary">6.6 A better model-storage
+boundary</h2>
+<p>Including a model in an image creates one self-contained artifact,
+but rebuilding the image repeats the model download and changing the
+model invalidates a large layer. Mounting the model keeps the runtime
+image and model lifecycle separate:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-v</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models:/models&quot;</span> <span class="dt">\</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  GPU_RUNTIME_IMAGE <span class="dt">\</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-m</span> /models/model.gguf</span></code></pre></div>
+<p>This approach expresses two independent concerns:</p>
+<ul>
+<li>the image defines <em>how inference runs</em>;</li>
+<li>the mounted file defines <em>which model runs</em>.</li>
+</ul>
+<p>The same principle applies to datasets and generated results.</p>
+<h2 id="from-batch-inference-to-a-hosted-service">6.7 From batch
+inference to a hosted service</h2>
+<p>Running one prompt inside a temporary container proves execution.
+Running an inference server demonstrates how the workload can serve
+remote clients:</p>
+<pre class="text"><code>Laptop client
+    |
+    | HTTP request
+    v
+Cloud firewall rule
+    |
+    v
+VM port mapped to container port
+    |
+    v
+Inference server using cloud GPU</code></pre>
+<p>The additional concepts are port publishing, process lifetime, and
+network access control. They do not change the GPU execution model. For
+an instructional deployment, firewall access should be restricted as
+narrowly as practical and the rule removed after use.</p>
+<h2 id="evidence-of-successful-migration">6.8 Evidence of successful
+migration</h2>
+<p>A migration demonstration should preserve simple evidence:</p>
+<ul>
+<li>local GPU identification;</li>
+<li>cloud GPU identification;</li>
+<li>the image tag or Dockerfile revision;</li>
+<li>model name and quantization;</li>
+<li>the prompt;</li>
+<li>successful generated output in both environments; and</li>
+<li>the cleanup or stopped-instance status.</li>
+</ul>
+<p>Inference text need not be identical because generation may be
+nondeterministic. The evidence required is successful execution of the
+same intended workload, not identical hardware or timing.</p>
+<h2 id="monitoring-the-workload">6.9 Monitoring the workload</h2>
+<p>Monitoring should answer three questions: Is the process running? Is
+it using the GPU? Is the expected output being produced?</p>
+<p>At the host level, <code>nvidia-smi</code> reports GPU identity,
+memory use, utilization, temperature, and processes known to the
+driver:</p>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ex">watch</span> <span class="at">-n</span> 1 nvidia-smi</span></code></pre></div>
+<p>At the container level:</p>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> ps</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> logs CONTAINER_NAME</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> stats CONTAINER_NAME</span></code></pre></div>
+<p>For a background server, name the container so its state and logs are
+easy to retrieve. GPU utilization may fluctuate for a small model
+because inference alternates between request handling, CPU work, memory
+transfer, and GPU kernels. One low utilization sample does not prove
+that the GPU is unused.</p>
+<h2 id="comparing-performance-responsibly">6.10 Comparing performance
+responsibly</h2>
+<p>Local and cloud timing is affected by model loading, quantization,
+offloaded layers, prompt length, token count, CPU preprocessing, disk
+cache, runtime build, concurrent activity, and network latency.</p>
+<p>Measure model-loading time separately from generation. Record prompt
+tokens, output tokens, and tokens per second when available. Repeat the
+run before drawing conclusions.</p>
+<p>This book uses timing to observe behaviour, not to publish a
+benchmark. A valid benchmark requires controlled inputs, warm-up,
+repeated trials, statistical reporting, and documented software and
+hardware configurations.</p>
+<h2 id="cost-control">6.11 Cost control</h2>
+<p>Cloud cost depends on resource type, location, duration, storage,
+data transfer, and purchasing model. Prices change, so always use the
+provider’s current calculator.</p>
+<pre class="text"><code>estimated compute cost
+= hourly VM/GPU price × expected running hours
+
+estimated retained cost
+= persistent disks + snapshots + reserved addresses + other services</code></pre>
+<p>Configure a budget alert, select the smallest compatible GPU, stop or
+delete resources after verification, label resources with owner and
+purpose, and re-check the console after scripted cleanup. A budget alert
+informs; it does not necessarily stop resources automatically.</p>
+<h2 id="security-boundaries">6.12 Security boundaries</h2>
+<p>Use a cloud identity with only the necessary permissions and enable
+multi-factor authentication. Prefer VM identity roles over copying
+long-lived provider credentials to the VM.</p>
+<p>Protect SSH private keys and keep them out of Docker images, Git,
+slides, and recordings. Use known container-image sources and inspect
+Dockerfiles before building.</p>
+<p>An inference server exposed to the internet needs authentication,
+encrypted transport, input limits, logging, and narrow firewall rules
+before production use. For a temporary classroom demonstration, minimize
+exposure and remove the rule afterward.</p>
+<h1 id="from-docker-to-apptainer-for-hpc">7. From Docker to Apptainer
+for HPC</h1>
+<p>Docker is convenient on a developer workstation or a cloud VM where
+the user controls the machine. A shared HPC cluster has different
+requirements. Many users submit jobs to the same system, and
+administrators generally avoid giving users access to a privileged
+container daemon.</p>
+<p>Apptainer descends from the Singularity project and was adopted by
+the Linux Foundation under its current name. SingularityCE also
+continues as a related implementation. A cluster may therefore provide
+an <code>apptainer</code> or <code>singularity</code> command; follow
+the software and policy supported by that site. This book uses Apptainer
+terminology and commands. It runs containers using the invoking user’s
+identity and integrates naturally with shared filesystems, GPUs, and
+batch schedulers.</p>
+<p>The conceptual translation is direct:</p>
+<pre class="text"><code>Docker development image
+        |
+        | convert or pull
+        v
+Apptainer SIF image
+        |
+        | apptainer run --nv
+        v
+GPU job on an HPC compute node</code></pre>
+<p>Docker and Apptainer are not competing answers to the same
+operational setting. A common workflow uses Docker during development
+and Apptainer for execution on an HPC cluster.</p>
+<h2 id="why-hpc-centres-prefer-apptainer">7.1 Why HPC centres prefer
+Apptainer</h2>
+<p>An HPC cluster is shared infrastructure. Users normally log in to a
+front-end node and submit jobs to compute nodes through a scheduler.
+They do not administer the machines and should not require a permanently
+running privileged Docker daemon.</p>
+<p>Apptainer is designed around that environment:</p>
+<ul>
+<li>the process in the container runs as the invoking user;</li>
+<li>the user’s permissions remain meaningful on shared filesystems;</li>
+<li>container images can be stored as single SIF files;</li>
+<li>host directories can be bind-mounted into the container; and</li>
+<li>NVIDIA GPU libraries can be exposed with <code>--nv</code>.</li>
+</ul>
+<h2 id="image-sources">7.2 Image sources</h2>
+<p>Apptainer can create or retrieve an image from a container-registry
+reference. In a connected environment, the conceptual command is:</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull gpu-demo.sif docker://REGISTRY/ACCOUNT/gpu-demo:v1</span></code></pre></div>
+<p>The resulting <code>gpu-demo.sif</code> is a portable image file. On
+a cluster, it can be copied to permitted storage and executed without
+running a Docker daemon.</p>
+<h2 id="running-with-a-gpu">7.3 Running with a GPU</h2>
+<p>The essential command is:</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> gpu-demo.sif</span></code></pre></div>
+<p><code>--nv</code> exposes the NVIDIA devices and appropriate host
+driver libraries. It plays a role similar to Docker’s
+<code>--gpus all</code>, although the runtimes implement GPU integration
+differently.</p>
+<h2 id="persistent-data">7.4 Persistent data</h2>
+<p>Containers should not be treated as the permanent home of inputs and
+results. A host directory can be bound into an Apptainer container:</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> <span class="dt">\</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bind</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models:/models&quot;</span> <span class="dt">\</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bind</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/results:/results&quot;</span> <span class="dt">\</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  gpu-demo.sif</span></code></pre></div>
+<p>The model and results remain on the filesystem after the container
+process exits.</p>
+<h2 id="scheduler-integration">7.5 Scheduler integration</h2>
+<p>On a Slurm-based cluster, a job script requests resources and
+launches the workload:</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=gpu-inference</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --gres=gpu:1</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=4</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=8G</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=00:10:00</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> gpu-demo.sif</span></code></pre></div>
+<p>The scheduler decides where and when the job runs. Apptainer supplies
+the application environment. CUDA uses the GPU allocated to the job.</p>
+<h1 id="the-complete-portability-story">8. The Complete Portability
+Story</h1>
+<p>The two sessions form one continuous argument.</p>
+<p>First, a GPU application that works locally is reproduced on a cloud
+GPU VM. This reveals the practical importance of drivers, dependencies,
+data, identity, networking, and cost control.</p>
+<p>Second, containerization provides a repeatable description of the
+application environment. Docker supports local and cloud development.
+Apptainer carries the same container approach into a shared HPC
+system.</p>
+<p>The final mental model is:</p>
+<pre class="text"><code>Write and test GPU workload locally
+                |
+                v
+Package the user-space environment
+                |
+        +-------+-------+
+        |               |
+        v               v
+Cloud GPU VM       HPC compute node
+Docker             Apptainer + scheduler</code></pre>
+<p>The GPU hardware may change. The infrastructure interface may change.
+The scheduler may change. The application and its declared environment
+remain the stable centre of the workflow.</p>
+<h1 id="guided-lab-read-the-existing-workload">9. Guided Lab: Read the
+Existing Workload</h1>
+<p>This lab is intentionally observational. Do not build or download
+anything until the recipe is understood.</p>
+<h2 id="identify-the-components">9.1 Identify the components</h2>
+<p>Open the project Dockerfile and answer:</p>
+<ol type="1">
+<li>Which base image is selected?</li>
+<li>Which dependencies are installed?</li>
+<li>Is the model copied, downloaded, or mounted?</li>
+<li>Which application file is placed in the image?</li>
+<li>Which command runs when the container starts?</li>
+</ol>
+<p>Then open the Python application and locate:</p>
+<ul>
+<li>the model path;</li>
+<li>the number of GPU layers requested;</li>
+<li>the prompt;</li>
+<li>the maximum generated token count; and</li>
+<li>the code that prints streamed output.</li>
+</ul>
+<p>The purpose is to connect each source line to one element of the
+workload. A container should not be treated as a black box merely
+because it hides installation steps.</p>
+<h2 id="draw-the-dependency-path">9.2 Draw the dependency path</h2>
+<p>Complete this path using the actual project names:</p>
+<pre class="text"><code>Prompt
+  -&gt; Python application
+  -&gt; inference runtime
+  -&gt; model file
+  -&gt; CUDA user-space libraries
+  -&gt; host NVIDIA driver
+  -&gt; physical GPU</code></pre>
+<p>If one layer fails, identify which preceding verification command
+would isolate it.</p>
+<h1 id="guided-lab-build-and-run-locally">10. Guided Lab: Build and Run
+Locally</h1>
+<h2 id="confirm-the-host">10.1 Confirm the host</h2>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> version</span></code></pre></div>
+<p>The first command verifies the host driver and GPU. The second
+verifies the Docker client and engine. Neither proves that a container
+can use the GPU.</p>
+<h2 id="build">10.2 Build</h2>
+<p>From the directory containing the Dockerfile:</p>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> gpu-demo:v1 .</span></code></pre></div>
+<p>Observe the build output. Identify the base-image stage, dependency
+installation, model handling, application copy, and final image
+name.</p>
+<p>Record:</p>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> image ls gpu-demo</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> image inspect gpu-demo:v1</span></code></pre></div>
+<h2 id="run-with-gpu-access">10.3 Run with GPU access</h2>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all gpu-demo:v1</span></code></pre></div>
+<p>Record the GPU name, model name, prompt, generated response, and
+whether the process exits successfully.</p>
+<h2 id="explain-the-result">10.4 Explain the result</h2>
+<p>The result proves that:</p>
+<ul>
+<li>Docker started the declared application environment;</li>
+<li>the runtime could locate the model;</li>
+<li>the NVIDIA container integration exposed a GPU; and</li>
+<li>inference completed.</li>
+</ul>
+<p>It does not prove cloud portability yet. That requires repeating the
+workload on another machine.</p>
+<h1 id="guided-lab-move-to-a-cloud-gpu">11. Guided Lab: Move to a Cloud
+GPU</h1>
+<p>The exact provisioning command depends on provider, account, region,
+quota, and current machine offerings. The invariant sequence is more
+important than one copied command.</p>
+<h2 id="before-provisioning">11.1 Before provisioning</h2>
+<p>Record:</p>
+<ul>
+<li>provider, project/subscription/account, region, and zone;</li>
+<li>selected machine and GPU;</li>
+<li>expected GPU memory;</li>
+<li>boot-disk size;</li>
+<li>quota confirmation;</li>
+<li>firewall exposure; and</li>
+<li>the cleanup command.</li>
+</ul>
+<h2 id="provision-and-connect">11.2 Provision and connect</h2>
+<p>Create one Linux GPU VM and connect through SSH. Immediately
+establish where commands are executing:</p>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/os-release</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span></span></code></pre></div>
+<h2 id="verify-from-host-to-application">11.3 Verify from host to
+application</h2>
+<p>Proceed in this order:</p>
+<pre class="text"><code>GPU attached to VM
+    -&gt; NVIDIA host driver works
+    -&gt; Docker works
+    -&gt; NVIDIA Container Toolkit works
+    -&gt; workload image exists
+    -&gt; model exists
+    -&gt; inference succeeds</code></pre>
+<p>Do not skip directly to the final application and then debug every
+layer at once.</p>
+<h2 id="reproduce-the-workload">11.4 Reproduce the workload</h2>
+<p>Choose one of two clear methods:</p>
+<p><strong>Recipe method:</strong> retrieve the Dockerfile and
+application, then rebuild on the VM.</p>
+<p><strong>Registry method:</strong> pull the exact previously built
+image.</p>
+<p>Run the workload with GPU access and retain the same evidence
+captured locally.</p>
+<h2 id="compare">11.5 Compare</h2>
+<table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Local</th>
+<th>Cloud</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host name</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>GPU model</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Container image/tag</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Model</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Prompt</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Inference succeeded</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Observed execution time</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Different GPU names and timings are expected. The portability result
+is successful execution without redesigning the application.</p>
+<h2 id="stop-and-inspect-billing-resources">11.6 Stop and inspect
+billing resources</h2>
+<p>Stop or delete the VM according to whether its disk state must be
+preserved. Then inspect the provider console for remaining disks,
+snapshots, reserved addresses, images, and firewall rules.</p>
+<h1 id="guided-lab-docker-to-apptainer">12. Guided Lab: Docker to
+Apptainer</h1>
+<p>This lab belongs on a Linux system with Apptainer installed, ideally
+an HPC login environment approved by its administrators.</p>
+<h2 id="obtain-a-sif-image">12.1 Obtain a SIF image</h2>
+<p>From an OCI/Docker registry:</p>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull gpu-demo.sif docker://REGISTRY/ACCOUNT/gpu-demo:v1</span></code></pre></div>
+<p>Inspect the result:</p>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> inspect gpu-demo.sif</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> gpu-demo.sif</span></code></pre></div>
+<p>The SIF file is the packaged application environment used by
+Apptainer.</p>
+<h2 id="run-first-without-a-scheduler">12.2 Run first without a
+scheduler</h2>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> gpu-demo.sif</span></code></pre></div>
+<p>This verifies Apptainer and GPU integration on the current node. On
+many clusters, substantial GPU computation must run only on allocated
+compute nodes; follow the site’s policy.</p>
+<h2 id="submit-through-slurm">12.3 Submit through Slurm</h2>
+<p>Create a minimal job script:</p>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=gpu-demo</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --gres=gpu:1</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=4</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=8G</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=00:10:00</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --output=gpu-demo-%j.out</span></span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> gpu-demo.sif</span></code></pre></div>
+<p>Submit and observe:</p>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> gpu-demo.slurm</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">--me</span></span></code></pre></div>
+<p>After completion, open the output file named with the Slurm job
+ID.</p>
+<h2 id="identify-responsibility-boundaries">12.4 Identify responsibility
+boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Slurm</td>
+<td>Resource request, queueing, placement and job lifecycle</td>
+</tr>
+<tr>
+<td>Apptainer</td>
+<td>Application filesystem and runtime environment</td>
+</tr>
+<tr>
+<td>Host driver</td>
+<td>Kernel-level access to the allocated GPU</td>
+</tr>
+<tr>
+<td>CUDA application</td>
+<td>Performs the GPU computation</td>
+</tr>
+<tr>
+<td>Shared filesystem</td>
+<td>Stores image, model, inputs and outputs</td>
+</tr>
+</tbody>
+</table>
+<h1 id="troubleshooting-by-boundaries">13. Troubleshooting by
+Boundaries</h1>
+<p>Troubleshooting becomes simpler when symptoms are mapped to
+layers.</p>
+<h2 id="the-vm-cannot-be-created">13.1 The VM cannot be created</h2>
+<p>Check account quota, zone capacity, requested machine/GPU
+compatibility, billing status, and command parameters. Docker and
+application code are not yet involved.</p>
+<h2 id="nvidia-smi-fails-on-the-host">13.2 <code>nvidia-smi</code> fails
+on the host</h2>
+<p>Check whether the GPU is attached, whether the selected
+operating-system image supports the installation path, whether the
+NVIDIA driver is installed, and whether a reboot is required. Do not
+debug Python first.</p>
+<h2 id="docker-works-but-a-gpu-test-container-fails">13.3 Docker works
+but a GPU test container fails</h2>
+<p>Check NVIDIA Container Toolkit installation and Docker runtime
+configuration. Restart Docker after configuration changes and confirm
+that the host still sees the GPU.</p>
+<h2 id="the-container-sees-the-gpu-but-inference-fails">13.4 The
+container sees the GPU but inference fails</h2>
+<p>Check CUDA/runtime compatibility, model path, model format, GPU
+memory, application arguments, and container logs.</p>
+<h2 id="build-reports-no-disk-space">13.5 Build reports no disk
+space</h2>
+<p>Inspect both filesystem space and Docker usage:</p>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> system df</span></code></pre></div>
+<p>Increase the intended disk when necessary. Cleanup commands can
+delete useful images and cache, so inspect before removing anything.</p>
+<h2 id="a-remote-api-cannot-be-reached">13.6 A remote API cannot be
+reached</h2>
+<p>Check in order:</p>
+<ol type="1">
+<li>Is the server process running?</li>
+<li>Is it listening on the expected interface and port?</li>
+<li>Is the container port published to the host?</li>
+<li>Does the cloud firewall allow the client’s source?</li>
+<li>Is the client using the correct current public address?</li>
+</ol>
+<p>GPU execution and network reachability are separate concerns.</p>
+<h1 id="review-questions">14. Review Questions</h1>
+<ol type="1">
+<li>What parts of a GPU workload are normally packaged in a
+container?</li>
+<li>Why does the NVIDIA driver remain on the host?</li>
+<li>What does <code>--gpus all</code> add to
+<code>docker run</code>?</li>
+<li>Why is rebuilding from the same Dockerfile still workload
+migration?</li>
+<li>When is transferring a prebuilt image preferable?</li>
+<li>Why should model weights often be mounted rather than baked into an
+image?</li>
+<li>How do VRAM, RAM, and disk capacity differ?</li>
+<li>Why might a valid VM creation request fail in one zone?</li>
+<li>What does VS Code Remote SSH execute locally, and what executes
+remotely?</li>
+<li>Why is Apptainer commonly used instead of Docker on shared HPC
+systems?</li>
+<li>What does Slurm contribute that Apptainer does not?</li>
+<li>Why should cloud cleanup include more than stopping the VM?</li>
+</ol>
+<h1 id="further-reading">15. Further Reading</h1>
+<p>The following primary documentation should be consulted for current
+commands, supported versions, and available hardware:</p>
+<ul>
+<li><a
+href="https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html">AWS
+EC2 accelerated-computing instance specifications</a></li>
+<li><a
+href="https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview">Azure
+GPU-optimized virtual-machine families</a></li>
+<li><a href="https://docs.cloud.google.com/compute/docs/gpus">Google
+Cloud GPU machine types</a></li>
+<li><a
+href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/">NVIDIA
+Container Toolkit overview</a></li>
+<li><a
+href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/arch-overview.html">NVIDIA
+Container Toolkit architecture</a></li>
+<li><a href="https://apptainer.org/docs/user/main/gpu.html">Apptainer
+GPU support</a></li>
+<li><a
+href="https://apptainer.org/docs/user/main/build_a_container.html">Building
+Apptainer containers</a></li>
+<li><a href="https://code.visualstudio.com/docs/remote/ssh">VS Code
+Remote Development over SSH</a></li>
+<li><a
+href="https://code.visualstudio.com/remote/advancedcontainers/develop-remote-host">VS
+Code development on a remote Docker host</a></li>
+<li><a
+href="https://docs.cloud.google.com/sdk/gcloud/reference/compute/ssh">Google
+Cloud CLI SSH reference</a></li>
+<li><a
+href="https://docs.cloud.google.com/sdk/gcloud/reference/compute/scp">Google
+Cloud CLI SCP reference</a></li>
+<li><a
+href="https://apptainer.org/docs/admin/main/installation.html">Apptainer
+installation guide</a></li>
+</ul>
+<h1 id="operators-manual-files-used-in-the-demonstration">16. Operator’s
+Manual: Files Used in the Demonstration</h1>
+<p>This part is the complete implementation manual. Commands are grouped
+by the computer on which they run. Do not paste a command until the
+heading identifies the correct machine.</p>
+<p>The demonstration uses these names consistently:</p>
+<pre class="text"><code>Project folder:       cuda-cloud-demo
+Docker image:         gpu-demo:v1
+Cloud VM:             cuda-cloud-demo
+Model repository:     bartowski/SmolLM2-360M-Instruct-GGUF
+Model file:           SmolLM2-360M-Instruct-Q4_K_M.gguf
+Container model path: /models/SmolLM2-360M-Instruct-Q4_K_M.gguf
+Application file:     app.py</code></pre>
+<h2 id="placeholder-register">16.1 Placeholder register</h2>
+<p>Replace capitalized placeholders before running a command:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Placeholder</th>
+<th>Meaning</th>
+<th>Example form</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>YOUR_PROJECT_ID</code></td>
+<td>Google Cloud project ID</td>
+<td><code>faculty-gpu-demo</code></td>
+</tr>
+<tr>
+<td><code>YOUR_WORKING_ZONE</code></td>
+<td>Zone confirmed to have quota/capacity</td>
+<td><code>region-zone</code></td>
+</tr>
+<tr>
+<td><code>YOUR_REGISTRY</code></td>
+<td>Docker/OCI registry hostname</td>
+<td>Provider or private registry host</td>
+</tr>
+<tr>
+<td><code>YOUR_ACCOUNT</code></td>
+<td>Registry namespace or account</td>
+<td>Your registry user/project</td>
+</tr>
+<tr>
+<td><code>VM_NAME</code></td>
+<td>Cloud VM name in generic diagnostics</td>
+<td><code>cuda-cloud-demo</code></td>
+</tr>
+<tr>
+<td><code>ZONE</code></td>
+<td>Cloud zone in generic diagnostics</td>
+<td>The selected working zone</td>
+</tr>
+<tr>
+<td><code>CONTAINER_NAME</code></td>
+<td>Name passed to <code>docker run --name</code></td>
+<td><code>llama-server</code></td>
+</tr>
+<tr>
+<td><code>JOB_ID</code></td>
+<td>Slurm job ID returned by <code>sbatch</code></td>
+<td>Numeric scheduler ID</td>
+</tr>
+<tr>
+<td><code>CLUSTER_USER</code></td>
+<td>HPC login username</td>
+<td>Site-assigned username</td>
+</tr>
+<tr>
+<td><code>CLUSTER_HOST</code></td>
+<td>HPC login hostname</td>
+<td>Site-provided address</td>
+</tr>
+</tbody>
+</table>
+<p>Do not type placeholder text literally. PowerShell variables such as
+<code>$vmName</code> and <code>$zone</code> refer to values assigned
+earlier in the same terminal.</p>
+<h2 id="directory-layout">16.2 Directory layout</h2>
+<p>Create one working directory:</p>
+<pre class="text"><code>cuda-cloud-demo/
+├── Dockerfile
+├── app.py
+└── models/
+    └── SmolLM2-360M-Instruct-Q4_K_M.gguf</code></pre>
+<p>The repository version stores the Dockerfile under
+<code>containerization/</code> and the application under
+<code>containerization/demo-app/</code>. The compact layout above is
+used in the manual because it is easier to copy to another machine.</p>
+<h2 id="application-code">16.3 Application code</h2>
+<p>Save the following as <code>app.py</code>:</p>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_cpp <span class="im">import</span> Llama</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>MODEL <span class="op">=</span> <span class="st">&quot;/models/SmolLM2-360M-Instruct-Q4_K_M.gguf&quot;</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>PROMPT <span class="op">=</span> <span class="st">&quot;Explain why GPUs are better than CPUs for AI in one short sentence.&quot;</span></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;Loading model...&quot;</span>)</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>llm <span class="op">=</span> Llama(</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    model_path<span class="op">=</span>MODEL,</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    n_gpu_layers<span class="op">=-</span><span class="dv">1</span>,</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a>formatted_prompt <span class="op">=</span> (</span>
+<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f&quot;&lt;|im_start|&gt;user</span><span class="ch">\n</span><span class="sc">{</span>PROMPT<span class="sc">}</span><span class="ss">&lt;|im_end|&gt;</span><span class="ch">\n</span><span class="ss">&quot;</span></span>
+<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;&lt;|im_start|&gt;assistant</span><span class="ch">\n</span><span class="st">&quot;</span></span>
+<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;USER: </span><span class="sc">{</span>PROMPT<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;AI: &quot;</span>, end<span class="op">=</span><span class="st">&quot;&quot;</span>, flush<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>stream <span class="op">=</span> llm(</span>
+<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>    formatted_prompt,</span>
+<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a>    stop<span class="op">=</span>[<span class="st">&quot;&lt;|im_end|&gt;&quot;</span>],</span>
+<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>    stream<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb50-27"><a href="#cb50-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-28"><a href="#cb50-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chunk <span class="kw">in</span> stream:</span>
+<span id="cb50-29"><a href="#cb50-29" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(chunk[<span class="st">&quot;choices&quot;</span>][<span class="dv">0</span>][<span class="st">&quot;text&quot;</span>], end<span class="op">=</span><span class="st">&quot;&quot;</span>, flush<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb50-30"><a href="#cb50-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-31"><a href="#cb50-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Inference completed.&quot;</span>)</span></code></pre></div>
+<p>Important lines:</p>
+<ul>
+<li><code>model_path</code> identifies the mounted model file.</li>
+<li><code>n_gpu_layers=-1</code> requests that all supported model
+layers be offloaded to the GPU.</li>
+<li><code>verbose=True</code> keeps runtime messages visible so GPU
+offload can be observed.</li>
+<li><code>stream=True</code> prints generated tokens as they
+arrive.</li>
+</ul>
+<p>The generated sentence can vary. Successful model loading,
+GPU-offload messages, generated text, and a normal exit are the relevant
+evidence.</p>
+<h2 id="dockerfile-1">16.4 Dockerfile</h2>
+<p>Save the following as <code>Dockerfile</code>:</p>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode dockerfile"><code class="sourceCode dockerfile"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> nvidia/cuda:12.1.1-runtime-ubuntu22.04</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">apt-get</span> update <span class="dt">\</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="va">DEBIAN_FRONTEND</span><span class="op">=</span>noninteractive <span class="ex">apt-get</span> install <span class="at">-y</span> <span class="dt">\</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>       python3 <span class="dt">\</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>       python3-pip <span class="dt">\</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&amp;&amp;</span> <span class="fu">rm</span> <span class="at">-rf</span> /var/lib/apt/lists/<span class="pp">*</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a><span class="kw">WORKDIR</span> /app</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a><span class="kw">RUN</span> <span class="ex">pip3</span> install <span class="at">--no-cache-dir</span> <span class="dt">\</span></span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>    llama-cpp-python <span class="dt">\</span></span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">--extra-index-url</span> https://abetlen.github.io/llama-cpp-python/whl/cu121</span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a><span class="kw">COPY</span> app.py /app/app.py</span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a><span class="kw">CMD</span> [<span class="st">&quot;python3&quot;</span>, <span class="st">&quot;/app/app.py&quot;</span>]</span></code></pre></div>
+<p>This image contains the CUDA user-space runtime, Python, the
+CUDA-enabled <code>llama-cpp-python</code> wheel, and the application.
+The model is deliberately excluded. It is mounted at runtime, which
+keeps the image and model independent.</p>
+<h2 id="dockerignore">16.5 <code>.dockerignore</code></h2>
+<p>Save the following as <code>.dockerignore</code>:</p>
+<pre class="text"><code>.git
+models/
+results/
+*.gguf
+*.tar
+*.sif
+.env</code></pre>
+<p>The model remains available to <code>docker run</code> through a
+mount, but is not sent into <code>docker build</code>.</p>
+<h2 id="download-the-model-on-windows">16.6 Download the model on
+Windows</h2>
+<p>From PowerShell inside <code>cuda-cloud-demo</code>:</p>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">New-Item</span> <span class="op">-</span>ItemType Directory <span class="op">-</span>Force <span class="op">-</span>Path <span class="op">.</span>\models <span class="op">|</span> <span class="fu">Out-Null</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="va">$modelUrl</span> <span class="op">=</span> <span class="st">&quot;https://huggingface.co/bartowski/SmolLM2-360M-Instruct-GGUF/resolve/main/SmolLM2-360M-Instruct-Q4_K_M.gguf?download=true&quot;</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="va">$modelFile</span> <span class="op">=</span> <span class="st">&quot;.\models\SmolLM2-360M-Instruct-Q4_K_M.gguf&quot;</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="fu">Invoke-WebRequest</span> <span class="op">-</span>Uri <span class="va">$modelUrl</span> <span class="op">-</span>OutFile <span class="va">$modelFile</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="fu">Get-Item</span> <span class="va">$modelFile</span> <span class="op">|</span> <span class="fu">Select-Object</span> Name<span class="op">,</span>Length</span></code></pre></div>
+<p>The file should have a non-zero size before continuing.</p>
+<h2 id="download-the-model-on-linux-or-wsl">16.7 Download the model on
+Linux or WSL</h2>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> models</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> <span class="dt">\</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;https://huggingface.co/bartowski/SmolLM2-360M-Instruct-GGUF/resolve/main/SmolLM2-360M-Instruct-Q4_K_M.gguf?download=true&quot;</span> <span class="dt">\</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">-o</span> models/SmolLM2-360M-Instruct-Q4_K_M.gguf</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> models/SmolLM2-360M-Instruct-Q4_K_M.gguf</span></code></pre></div>
+<h1 id="operators-manual-local-windows-and-wsl2-setup">17. Operator’s
+Manual: Local Windows and WSL2 Setup</h1>
+<p>This chapter starts from a Windows laptop with an NVIDIA GPU, WSL2,
+and Docker Desktop.</p>
+<h2 id="identify-the-host-gpu">17.1 Identify the host GPU</h2>
+<p>Run in PowerShell:</p>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>nvidia-smi</span></code></pre></div>
+<p>Expected evidence includes the NVIDIA driver version, CUDA
+compatibility reported by the driver, GPU name, and GPU memory.</p>
+<p>The project’s verified local machine reported an NVIDIA GeForce RTX
+5060 Ti with approximately 16 GB of GPU memory.</p>
+<h2 id="verify-wsl2">17.2 Verify WSL2</h2>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>wsl <span class="op">--</span>version</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>wsl <span class="op">--</span>status</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>wsl <span class="op">--</span>list <span class="op">--</span>verbose</span></code></pre></div>
+<p>The Linux distribution used by Docker or development should report
+version 2.</p>
+<p>Open the default distribution:</p>
+<div class="sourceCode" id="cb57"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>wsl</span></code></pre></div>
+<p>Inside WSL, verify GPU visibility:</p>
+<div class="sourceCode" id="cb58"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span></code></pre></div>
+<p>The Windows NVIDIA driver supplies WSL GPU support; do not install a
+second Windows display driver inside WSL.</p>
+<h2 id="verify-docker-desktop">17.3 Verify Docker Desktop</h2>
+<p>Run in PowerShell:</p>
+<div class="sourceCode" id="cb59"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>docker version</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>docker info</span></code></pre></div>
+<p>The output must contain both client and server information. If only
+the client is shown, start Docker Desktop and wait until its engine is
+ready.</p>
+<h2 id="verify-container-gpu-access">17.4 Verify container GPU
+access</h2>
+<p>Use a CUDA image compatible with the host driver:</p>
+<div class="sourceCode" id="cb60"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">--</span>gpus all nvidia<span class="op">/</span>cuda<span class="op">:</span><span class="dv">12.1</span><span class="op">.</span><span class="dv">1</span><span class="op">-</span>base-ubuntu22<span class="op">.</span><span class="dv">04</span> nvidia-smi</span></code></pre></div>
+<p>This command proves the complete path:</p>
+<pre class="text"><code>Docker Desktop
+-&gt; NVIDIA container integration
+-&gt; WSL GPU support
+-&gt; Windows NVIDIA driver
+-&gt; physical GPU</code></pre>
+<p>It does not yet test the model.</p>
+<h2 id="build-the-application-image">17.5 Build the application
+image</h2>
+<p>From the directory containing <code>Dockerfile</code> and
+<code>app.py</code>:</p>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>docker build <span class="op">-</span>t gpu-demo<span class="op">:</span>v1 <span class="op">.</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>docker image <span class="fu">ls</span> gpu-demo</span></code></pre></div>
+<p>The first build downloads the base image and Python wheel. Later
+builds can reuse unchanged layers.</p>
+<h2 id="run-local-inference">17.6 Run local inference</h2>
+<p>PowerShell path mounting:</p>
+<div class="sourceCode" id="cb63"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="va">$modelDirectory</span> <span class="op">=</span> <span class="op">(</span><span class="fu">Resolve-Path</span> <span class="op">.</span>\models<span class="op">).</span><span class="fu">Path</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">--</span>gpus all `</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>mount <span class="st">&quot;type=bind,source=</span><span class="va">$modelDirectory</span><span class="st">,target=/models,readonly&quot;</span> `</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>  gpu-demo<span class="op">:</span>v1</span></code></pre></div>
+<p>Linux or WSL path mounting:</p>
+<div class="sourceCode" id="cb64"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>  gpu-demo:v1</span></code></pre></div>
+<h2 id="capture-local-evidence">17.7 Capture local evidence</h2>
+<p>Save the following before moving to cloud:</p>
+<div class="sourceCode" id="cb65"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>nvidia-smi <span class="op">&gt;</span> local-nvidia-smi<span class="op">.</span><span class="fu">txt</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>docker image inspect gpu-demo<span class="op">:</span>v1 <span class="op">&gt;</span> local-image-inspect<span class="op">.</span><span class="fu">json</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="va">$modelDirectory</span> <span class="op">=</span> <span class="op">(</span><span class="fu">Resolve-Path</span> <span class="op">.</span>\models<span class="op">).</span><span class="fu">Path</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">--</span>gpus all `</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>mount <span class="st">&quot;type=bind,source=</span><span class="va">$modelDirectory</span><span class="st">,target=/models,readonly&quot;</span> `</span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>  gpu-demo<span class="op">:</span>v1 <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="op">|</span> <span class="fu">Tee-Object</span> local-inference<span class="op">.</span><span class="fu">txt</span></span></code></pre></div>
+<p>The evidence files establish which GPU, image, model, command, and
+result were used locally.</p>
+<h1 id="operators-manual-google-cloud-preparation">18. Operator’s
+Manual: Google Cloud Preparation</h1>
+<p>The commands in this chapter run on the local administration machine
+unless explicitly labelled <strong>cloud VM</strong>.</p>
+<h2 id="install-and-initialize-the-google-cloud-cli">18.1 Install and
+initialize the Google Cloud CLI</h2>
+<p>After installing the Google Cloud CLI, verify and authenticate:</p>
+<div class="sourceCode" id="cb66"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>gcloud version</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>gcloud auth login</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>gcloud auth list</span></code></pre></div>
+<p>Select the project:</p>
+<div class="sourceCode" id="cb67"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>gcloud projects list</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>gcloud config <span class="fu">set</span> project YOUR_PROJECT_ID</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>gcloud config get-value project</span></code></pre></div>
+<p>Replace <code>YOUR_PROJECT_ID</code> with the project that has
+billing enabled.</p>
+<h2 id="enable-compute-engine">18.2 Enable Compute Engine</h2>
+<div class="sourceCode" id="cb68"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>gcloud services enable compute<span class="op">.</span><span class="fu">googleapis</span><span class="op">.</span><span class="fu">com</span></span></code></pre></div>
+<h2 id="inspect-available-gpu-accelerators">18.3 Inspect available GPU
+accelerators</h2>
+<div class="sourceCode" id="cb69"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>gcloud compute accelerator-types list <span class="op">--</span>filter<span class="op">=</span><span class="st">&quot;name:(nvidia-l4 nvidia-tesla-t4)&quot;</span></span></code></pre></div>
+<p>Select a zone shown for the desired GPU. Record it once:</p>
+<div class="sourceCode" id="cb70"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="va">$projectId</span> <span class="op">=</span> <span class="st">&quot;YOUR_PROJECT_ID&quot;</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="va">$zone</span> <span class="op">=</span> <span class="st">&quot;YOUR_WORKING_ZONE&quot;</span></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="va">$vmName</span> <span class="op">=</span> <span class="st">&quot;cuda-cloud-demo&quot;</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>gcloud config <span class="fu">set</span> project <span class="va">$projectId</span></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>gcloud config <span class="fu">set</span> compute<span class="op">/</span>zone <span class="va">$zone</span></span></code></pre></div>
+<p>GPU quota and capacity must be available in the selected zone. A
+quota error is an account allocation issue; a resource-availability
+error can require another zone or GPU type.</p>
+<h2 id="create-an-l4-vm">18.4 Create an L4 VM</h2>
+<p>For an L4, use a G2 machine type in a zone where it is available:</p>
+<div class="sourceCode" id="cb71"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances create <span class="va">$vmName</span> `</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span> `</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>machine-type<span class="op">=</span>g2-standard-4 `</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>image-family<span class="op">=</span>ubuntu-2204-lts-amd64 `</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>image-project<span class="op">=</span>ubuntu-os-cloud `</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>boot-disk-size<span class="op">=</span>50GB `</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>maintenance-policy<span class="op">=</span>TERMINATE</span></code></pre></div>
+<p>If the chosen zone does not offer <code>g2-standard-4</code>, do not
+keep changing unrelated options. Return to the accelerator/machine
+availability check and select a compatible zone.</p>
+<h2 id="inspect-the-created-vm">18.5 Inspect the created VM</h2>
+<div class="sourceCode" id="cb72"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances describe <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span> `</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>format<span class="op">=</span><span class="st">&quot;table(name,status,machineType.basename(),zone.basename(),disks[0].diskSizeGb)&quot;</span></span></code></pre></div>
+<p>Confirm that the status is <code>RUNNING</code> before
+connecting.</p>
+<h1 id="operators-manual-ssh-and-remote-development">19. Operator’s
+Manual: SSH and Remote Development</h1>
+<h2 id="connect-with-the-google-cloud-cli">19.1 Connect with the Google
+Cloud CLI</h2>
+<div class="sourceCode" id="cb73"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>gcloud compute ssh <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span></code></pre></div>
+<p>On the first connection, <code>gcloud</code> can create an SSH key
+and register its public key. Never share the generated private key.</p>
+<p>Inside the cloud VM, establish context:</p>
+<div class="sourceCode" id="cb74"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">whoami</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> /etc/os-release</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span> /</span></code></pre></div>
+<p>Exit back to the laptop with:</p>
+<div class="sourceCode" id="cb75"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="bu">exit</span></span></code></pre></div>
+<h2 id="generate-standard-ssh-configuration">19.2 Generate standard SSH
+configuration</h2>
+<p>On the laptop:</p>
+<div class="sourceCode" id="cb76"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>gcloud compute config-ssh</span></code></pre></div>
+<p>Inspect the generated entries without publishing private-key
+content:</p>
+<div class="sourceCode" id="cb77"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Get-Content</span> <span class="va">$HOME</span>\<span class="op">.</span><span class="fu">ssh</span>\config</span></code></pre></div>
+<p>The entry maps a friendly host name to the VM address, user, and
+private-key path.</p>
+<h2 id="connect-with-vs-code-remote-ssh">19.3 Connect with VS Code
+Remote SSH</h2>
+<ol type="1">
+<li>Install the <strong>Remote - SSH</strong> extension.</li>
+<li>Open the Command Palette.</li>
+<li>Select <strong>Remote-SSH: Connect to Host</strong>.</li>
+<li>Choose the generated GCP host entry.</li>
+<li>Open the remote project directory.</li>
+<li>Open a VS Code terminal and run <code>hostname</code>.</li>
+</ol>
+<p>If <code>hostname</code> prints the cloud VM name, editor operations
+and terminal commands target the remote filesystem and machine.</p>
+<h2 id="copy-the-project-through-gcloud-compute-scp">19.4 Copy the
+project through <code>gcloud compute scp</code></h2>
+<p>From the laptop, while positioned above the local
+<code>cuda-cloud-demo</code> directory:</p>
+<div class="sourceCode" id="cb78"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>gcloud compute scp <span class="op">--</span>recurse <span class="op">.</span>\cuda-cloud-demo <span class="st">&quot;</span><span class="pp">${</span><span class="va">vmName</span><span class="pp">}</span><span class="st">:~/&quot;</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span></code></pre></div>
+<p>Do not copy the <code>models</code> folder if the model will be
+downloaded directly on the VM. To copy only the recipe and
+application:</p>
+<div class="sourceCode" id="cb79"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>gcloud compute ssh <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span> <span class="op">--</span>command<span class="op">=</span><span class="st">&quot;mkdir -p ~/cuda-cloud-demo&quot;</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>gcloud compute scp <span class="op">.</span>\cuda-cloud-demo\Dockerfile <span class="st">&quot;</span><span class="pp">${</span><span class="va">vmName</span><span class="pp">}</span><span class="st">:~/cuda-cloud-demo/&quot;</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>gcloud compute scp <span class="op">.</span>\cuda-cloud-demo\app<span class="op">.</span><span class="fu">py</span> <span class="st">&quot;</span><span class="pp">${</span><span class="va">vmName</span><span class="pp">}</span><span class="st">:~/cuda-cloud-demo/&quot;</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>gcloud compute scp <span class="op">.</span>\cuda-cloud-demo\<span class="op">.</span><span class="fu">dockerignore</span> <span class="st">&quot;</span><span class="pp">${</span><span class="va">vmName</span><span class="pp">}</span><span class="st">:~/cuda-cloud-demo/&quot;</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span></code></pre></div>
+<p>On the cloud VM:</p>
+<div class="sourceCode" id="cb80"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/cuda-cloud-demo</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-la</span></span></code></pre></div>
+<h1 id="operators-manual-bootstrap-the-cloud-gpu-host">20. Operator’s
+Manual: Bootstrap the Cloud GPU Host</h1>
+<p>The following commands run <strong>inside the cloud VM</strong>.</p>
+<h2 id="install-the-nvidia-driver">20.1 Install the NVIDIA driver</h2>
+<div class="sourceCode" id="cb81"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> DEBIAN_FRONTEND=noninteractive apt-get install <span class="at">-y</span> <span class="dt">\</span></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>  ubuntu-drivers-common <span class="dt">\</span></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>  nvidia-driver-535</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> reboot</span></code></pre></div>
+<p>The SSH connection closes during reboot. Wait for the VM to return to
+<code>RUNNING</code>, reconnect, and verify:</p>
+<div class="sourceCode" id="cb82"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span></code></pre></div>
+<p>The output should identify the cloud GPU. In the recorded case study,
+this was an NVIDIA L4.</p>
+<h2 id="install-docker">20.2 Install Docker</h2>
+<div class="sourceCode" id="cb83"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> DEBIAN_FRONTEND=noninteractive apt-get install <span class="at">-y</span> <span class="dt">\</span></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>  docker.io <span class="dt">\</span></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>  curl <span class="dt">\</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>  gnupg</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable <span class="at">--now</span> docker</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker version</span></code></pre></div>
+<p>This manual keeps <code>sudo docker</code> on the cloud VM to avoid
+changing group membership during the lab.</p>
+<h2 id="install-nvidia-container-toolkit">20.3 Install NVIDIA Container
+Toolkit</h2>
+<div class="sourceCode" id="cb84"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://nvidia.github.io/libnvidia-container/gpgkey <span class="dt">\</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sudo</span> gpg <span class="at">--dearmor</span> <span class="at">--yes</span> <span class="dt">\</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">-o</span> /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-L</span> https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list <span class="dt">\</span></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#39;</span> <span class="dt">\</span></span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/apt/sources.list.d/nvidia-container-toolkit.list</span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> DEBIAN_FRONTEND=noninteractive apt-get install <span class="at">-y</span> nvidia-container-toolkit</span>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> nvidia-ctk runtime configure <span class="at">--runtime</span><span class="op">=</span>docker</span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl restart docker</span></code></pre></div>
+<h2 id="verify-the-container-to-gpu-boundary">20.4 Verify the
+container-to-GPU boundary</h2>
+<div class="sourceCode" id="cb85"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>  nvidia/cuda:12.1.1-base-ubuntu22.04 <span class="dt">\</span></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>  nvidia-smi</span></code></pre></div>
+<p>Do not proceed to the model until this succeeds.</p>
+<h2 id="reusable-bootstrap-script">20.5 Reusable bootstrap script</h2>
+<p>Save as <code>bootstrap-gpu-host.sh</code> on an Ubuntu 22.04 GPU
+VM:</p>
+<div class="sourceCode" id="cb86"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env bash</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-euo</span> pipefail</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> DEBIAN_FRONTEND=noninteractive apt-get install <span class="at">-y</span> <span class="dt">\</span></span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>  ubuntu-drivers-common <span class="dt">\</span></span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>  nvidia-driver-535 <span class="dt">\</span></span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>  docker.io <span class="dt">\</span></span>
+<span id="cb86-9"><a href="#cb86-9" aria-hidden="true" tabindex="-1"></a>  curl <span class="dt">\</span></span>
+<span id="cb86-10"><a href="#cb86-10" aria-hidden="true" tabindex="-1"></a>  gnupg</span>
+<span id="cb86-11"><a href="#cb86-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-12"><a href="#cb86-12" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-fsSL</span> https://nvidia.github.io/libnvidia-container/gpgkey <span class="dt">\</span></span>
+<span id="cb86-13"><a href="#cb86-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sudo</span> gpg <span class="at">--dearmor</span> <span class="at">--yes</span> <span class="dt">\</span></span>
+<span id="cb86-14"><a href="#cb86-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">-o</span> /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg</span>
+<span id="cb86-15"><a href="#cb86-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-16"><a href="#cb86-16" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-s</span> <span class="at">-L</span> https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list <span class="dt">\</span></span>
+<span id="cb86-17"><a href="#cb86-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sed</span> <span class="st">&#39;s#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g&#39;</span> <span class="dt">\</span></span>
+<span id="cb86-18"><a href="#cb86-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span> <span class="fu">sudo</span> tee /etc/apt/sources.list.d/nvidia-container-toolkit.list</span>
+<span id="cb86-19"><a href="#cb86-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-20"><a href="#cb86-20" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb86-21"><a href="#cb86-21" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> DEBIAN_FRONTEND=noninteractive apt-get install <span class="at">-y</span> nvidia-container-toolkit</span>
+<span id="cb86-22"><a href="#cb86-22" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> nvidia-ctk runtime configure <span class="at">--runtime</span><span class="op">=</span>docker</span>
+<span id="cb86-23"><a href="#cb86-23" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl enable docker</span>
+<span id="cb86-24"><a href="#cb86-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-25"><a href="#cb86-25" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Driver installed. Reboot the VM, then verify nvidia-smi and restart Docker.&quot;</span></span></code></pre></div>
+<p>Run:</p>
+<div class="sourceCode" id="cb87"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x bootstrap-gpu-host.sh</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./bootstrap-gpu-host.sh</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> reboot</span></code></pre></div>
+<h1 id="operators-manual-run-inference-on-the-cloud-gpu">21. Operator’s
+Manual: Run Inference on the Cloud GPU</h1>
+<p>The following commands run <strong>inside the cloud VM</strong> after
+driver and container verification.</p>
+<h2 id="download-the-model">21.1 Download the model</h2>
+<div class="sourceCode" id="cb88"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/cuda-cloud-demo</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> models</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-L</span> <span class="dt">\</span></span>
+<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;https://huggingface.co/bartowski/SmolLM2-360M-Instruct-GGUF/resolve/main/SmolLM2-360M-Instruct-Q4_K_M.gguf?download=true&quot;</span> <span class="dt">\</span></span>
+<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-o</span> models/SmolLM2-360M-Instruct-Q4_K_M.gguf</span>
+<span id="cb88-7"><a href="#cb88-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb88-8"><a href="#cb88-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> models/SmolLM2-360M-Instruct-Q4_K_M.gguf</span></code></pre></div>
+<h2 id="build-on-the-cloud-vm">21.2 Build on the cloud VM</h2>
+<div class="sourceCode" id="cb89"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker build <span class="at">-t</span> gpu-demo:v1 .</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker image ls gpu-demo</span></code></pre></div>
+<p>This is the recipe-rebuild migration method. The Dockerfile and
+application moved; the environment was reconstructed on the cloud
+VM.</p>
+<h2 id="run-the-same-workload">21.3 Run the same workload</h2>
+<div class="sourceCode" id="cb90"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>  gpu-demo:v1</span></code></pre></div>
+<p>Compare this command with the local Linux/WSL command. The image
+name, container model path, application, and GPU flag are unchanged. The
+host GPU is different.</p>
+<h2 id="capture-cloud-evidence">21.4 Capture cloud evidence</h2>
+<div class="sourceCode" id="cb91"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span> <span class="kw">|</span> <span class="fu">tee</span> cloud-nvidia-smi.txt</span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker image inspect gpu-demo:v1 <span class="op">&gt;</span> cloud-image-inspect.json</span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a>  gpu-demo:v1 <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">tee</span> cloud-inference.txt</span></code></pre></div>
+<p>Copy evidence back to the laptop:</p>
+<div class="sourceCode" id="cb92"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>gcloud compute scp <span class="st">&quot;</span><span class="pp">${</span><span class="va">vmName</span><span class="pp">}</span><span class="st">:~/cuda-cloud-demo/cloud-*.txt&quot;</span> <span class="op">.</span>\evidence\ <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>gcloud compute scp <span class="st">&quot;</span><span class="pp">${</span><span class="va">vmName</span><span class="pp">}</span><span class="st">:~/cuda-cloud-demo/cloud-image-inspect.json&quot;</span> <span class="op">.</span>\evidence\ <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span></code></pre></div>
+<h2 id="registry-transfer-method">21.5 Registry-transfer method</h2>
+<p>To transfer an already built image, first use a registry-qualified
+tag on the local machine:</p>
+<div class="sourceCode" id="cb93"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>docker tag gpu-demo<span class="op">:</span>v1 YOUR_REGISTRY<span class="op">/</span>YOUR_ACCOUNT<span class="op">/</span>gpu-demo<span class="op">:</span>v1</span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>docker push YOUR_REGISTRY<span class="op">/</span>YOUR_ACCOUNT<span class="op">/</span>gpu-demo<span class="op">:</span>v1</span></code></pre></div>
+<p>On the cloud VM:</p>
+<div class="sourceCode" id="cb94"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker pull YOUR_REGISTRY/YOUR_ACCOUNT/gpu-demo:v1</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>  YOUR_REGISTRY/YOUR_ACCOUNT/gpu-demo:v1</span></code></pre></div>
+<p>Use a private repository when the image is not intended for public
+distribution.</p>
+<h1 id="operators-manual-host-an-inference-api">22. Operator’s Manual:
+Host an Inference API</h1>
+<p>This chapter uses the official CUDA-enabled <code>llama.cpp</code>
+server image rather than adding web-server code to the Python
+application.</p>
+<h2 id="start-the-server-on-the-cloud-vm">22.1 Start the server on the
+cloud VM</h2>
+<div class="sourceCode" id="cb95"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/cuda-cloud-demo</span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--name</span> llama-server <span class="dt">\</span></span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">-p</span> 8080:8080 <span class="dt">\</span></span>
+<span id="cb95-7"><a href="#cb95-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>  ghcr.io/ggml-org/llama.cpp:server-cuda <span class="dt">\</span></span>
+<span id="cb95-9"><a href="#cb95-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">-m</span> /models/SmolLM2-360M-Instruct-Q4_K_M.gguf <span class="dt">\</span></span>
+<span id="cb95-10"><a href="#cb95-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--host</span> 0.0.0.0 <span class="dt">\</span></span>
+<span id="cb95-11"><a href="#cb95-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">--port</span> 8080 <span class="dt">\</span></span>
+<span id="cb95-12"><a href="#cb95-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">--n-gpu-layers</span> 999</span></code></pre></div>
+<h2 id="watch-startup-logs">22.2 Watch startup logs</h2>
+<div class="sourceCode" id="cb96"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker logs <span class="at">-f</span> llama-server</span></code></pre></div>
+<p>Stop following logs with <code>Ctrl+C</code>; this does not stop the
+container.</p>
+<p>Check container state:</p>
+<div class="sourceCode" id="cb97"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker ps <span class="at">--filter</span> name=llama-server</span></code></pre></div>
+<h2 id="test-from-inside-the-vm">22.3 Test from inside the VM</h2>
+<p>Testing locally on the VM separates application health from firewall
+configuration:</p>
+<div class="sourceCode" id="cb98"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> http://127.0.0.1:8080/v1/completions <span class="dt">\</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-H</span> <span class="st">&quot;Content-Type: application/json&quot;</span> <span class="dt">\</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">-d</span> <span class="st">&#39;{</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;prompt&quot;: &quot;&lt;|im_start|&gt;user\nExplain cloud GPU computing in one sentence.&lt;|im_end|&gt;\n&lt;|im_start|&gt;assistant\n&quot;,</span></span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;max_tokens&quot;: 100,</span></span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a><span class="st">    &quot;stream&quot;: false</span></span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a><span class="st">  }&#39;</span></span></code></pre></div>
+<h2 id="use-ssh-port-forwarding">22.4 Use SSH port forwarding</h2>
+<p>SSH forwarding avoids opening port 8080 to the public internet. Run
+on the laptop:</p>
+<div class="sourceCode" id="cb99"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>gcloud compute ssh <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span> <span class="op">--</span> <span class="op">-</span>NL <span class="dv">8080</span><span class="op">:</span>localhost<span class="op">:</span><span class="dv">8080</span></span></code></pre></div>
+<p>Keep that SSH window open. In a second local PowerShell window:</p>
+<div class="sourceCode" id="cb100"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="va">$request</span> <span class="op">=</span> @<span class="op">{</span></span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>    prompt <span class="op">=</span> <span class="st">&quot;&lt;|im_start|&gt;user</span><span class="ch">`n</span><span class="st">Explain cloud GPU computing in one sentence.&lt;|im_end|&gt;</span><span class="ch">`n</span><span class="st">&lt;|im_start|&gt;assistant</span><span class="ch">`n</span><span class="st">&quot;</span></span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a>    max_tokens <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb100-4"><a href="#cb100-4" aria-hidden="true" tabindex="-1"></a>    stream <span class="op">=</span> <span class="va">$false</span></span>
+<span id="cb100-5"><a href="#cb100-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="op">|</span> <span class="fu">ConvertTo-Json</span></span>
+<span id="cb100-6"><a href="#cb100-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb100-7"><a href="#cb100-7" aria-hidden="true" tabindex="-1"></a><span class="fu">Invoke-RestMethod</span> `</span>
+<span id="cb100-8"><a href="#cb100-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">-</span>Uri <span class="st">&quot;http://localhost:8080/v1/completions&quot;</span> `</span>
+<span id="cb100-9"><a href="#cb100-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">-</span>Method Post `</span>
+<span id="cb100-10"><a href="#cb100-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">-</span>ContentType <span class="st">&quot;application/json&quot;</span> `</span>
+<span id="cb100-11"><a href="#cb100-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">-</span>Body <span class="va">$request</span></span></code></pre></div>
+<p>The request travels through SSH to port 8080 on the VM; no public
+application firewall rule is required.</p>
+<h2 id="stop-the-server">22.5 Stop the server</h2>
+<div class="sourceCode" id="cb101"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker stop llama-server</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker rm llama-server</span></code></pre></div>
+<h1 id="operators-manual-stop-start-and-delete-gcp-resources">23.
+Operator’s Manual: Stop, Start, and Delete GCP Resources</h1>
+<p>These commands run on the laptop.</p>
+<h2 id="stop-while-preserving-the-boot-disk">23.1 Stop while preserving
+the boot disk</h2>
+<div class="sourceCode" id="cb102"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances stop <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span>
+<span id="cb102-2"><a href="#cb102-2" aria-hidden="true" tabindex="-1"></a>gcloud compute instances describe <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span> <span class="op">--</span>format<span class="op">=</span><span class="st">&quot;value(status)&quot;</span></span></code></pre></div>
+<p>The expected status is <code>TERMINATED</code>. Compute charges stop,
+but retained disks and some associated resources can continue to cost
+money.</p>
+<h2 id="restart-later">23.2 Restart later</h2>
+<div class="sourceCode" id="cb103"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances <span class="fu">start</span> <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>gcloud compute ssh <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span></code></pre></div>
+<p>Inside the VM:</p>
+<div class="sourceCode" id="cb104"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span>
+<span id="cb104-2"><a href="#cb104-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb104-3"><a href="#cb104-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">--mount</span> type=bind,source=<span class="st">&quot;</span><span class="va">$HOME</span><span class="st">/cuda-cloud-demo/models&quot;</span>,target=/models,readonly <span class="dt">\</span></span>
+<span id="cb104-4"><a href="#cb104-4" aria-hidden="true" tabindex="-1"></a>  gpu-demo:v1</span></code></pre></div>
+<h2 id="delete-the-vm">23.3 Delete the VM</h2>
+<div class="sourceCode" id="cb105"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances delete <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span></span></code></pre></div>
+<p>Read the deletion prompt and confirm the exact name and zone.</p>
+<h2 id="audit-remaining-resources">23.4 Audit remaining resources</h2>
+<div class="sourceCode" id="cb106"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances list</span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>gcloud compute disks list <span class="op">--</span>filter<span class="op">=</span><span class="st">&quot;name~&#39;</span><span class="va">$vmName</span><span class="st">&#39;&quot;</span></span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>gcloud compute addresses list</span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>gcloud compute firewall-rules list</span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>gcloud compute snapshots list</span></code></pre></div>
+<p>The absence of the VM alone does not prove that every billable
+resource was removed.</p>
+<h2 id="minimal-powershell-lifecycle-script">23.5 Minimal PowerShell
+lifecycle script</h2>
+<p>Save as <code>gcp-vm.ps1</code>:</p>
+<div class="sourceCode" id="cb107"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="kw">param</span><span class="op">(</span></span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span>Parameter<span class="op">(</span>Mandatory<span class="op">)]</span></span>
+<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span>ValidateSet<span class="op">(</span><span class="st">&quot;status&quot;</span><span class="op">,</span> <span class="st">&quot;start&quot;</span><span class="op">,</span> <span class="st">&quot;stop&quot;</span><span class="op">)]</span></span>
+<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span><span class="dt">string</span><span class="op">]</span><span class="va">$Action</span><span class="op">,</span></span>
+<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span><span class="dt">string</span><span class="op">]</span><span class="va">$Name</span> <span class="op">=</span> <span class="st">&quot;cuda-cloud-demo&quot;</span><span class="op">,</span></span>
+<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span>Parameter<span class="op">(</span>Mandatory<span class="op">)]</span></span>
+<span id="cb107-8"><a href="#cb107-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">[</span><span class="dt">string</span><span class="op">]</span><span class="va">$Zone</span></span>
+<span id="cb107-9"><a href="#cb107-9" aria-hidden="true" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb107-10"><a href="#cb107-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb107-11"><a href="#cb107-11" aria-hidden="true" tabindex="-1"></a><span class="cf">switch</span> <span class="op">(</span><span class="va">$Action</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb107-12"><a href="#cb107-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;status&quot;</span> <span class="op">{</span></span>
+<span id="cb107-13"><a href="#cb107-13" aria-hidden="true" tabindex="-1"></a>        gcloud compute instances describe <span class="va">$Name</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$Zone</span> `</span>
+<span id="cb107-14"><a href="#cb107-14" aria-hidden="true" tabindex="-1"></a>          <span class="op">--</span>format<span class="op">=</span><span class="st">&quot;table(name,status,zone.basename(),machineType.basename())&quot;</span></span>
+<span id="cb107-15"><a href="#cb107-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb107-16"><a href="#cb107-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;start&quot;</span> <span class="op">{</span></span>
+<span id="cb107-17"><a href="#cb107-17" aria-hidden="true" tabindex="-1"></a>        gcloud compute instances <span class="fu">start</span> <span class="va">$Name</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$Zone</span></span>
+<span id="cb107-18"><a href="#cb107-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb107-19"><a href="#cb107-19" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;stop&quot;</span> <span class="op">{</span></span>
+<span id="cb107-20"><a href="#cb107-20" aria-hidden="true" tabindex="-1"></a>        gcloud compute instances stop <span class="va">$Name</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$Zone</span></span>
+<span id="cb107-21"><a href="#cb107-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb107-22"><a href="#cb107-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Examples:</p>
+<div class="sourceCode" id="cb108"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\gcp-vm<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>Action status <span class="op">-</span>Zone YOUR_WORKING_ZONE</span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>\gcp-vm<span class="op">.</span><span class="fu">ps1</span> <span class="op">-</span>Action stop <span class="op">-</span>Zone YOUR_WORKING_ZONE</span></code></pre></div>
+<p>Deletion remains an explicit command rather than part of this
+convenience script.</p>
+<h1 id="operators-manual-apptainer-and-singularity-for-hpc">24.
+Operator’s Manual: Apptainer and Singularity for HPC</h1>
+<p>These commands run on a Linux system where Apptainer is installed. On
+a managed cluster, use the module and commands supplied by its
+administrators.</p>
+<h2 id="install-on-ubuntu-or-wsl2">24.1 Install on Ubuntu or WSL2</h2>
+<p>The official Apptainer PPA provides current Ubuntu packages:</p>
+<div class="sourceCode" id="cb109"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install <span class="at">-y</span> software-properties-common</span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> add-apt-repository <span class="at">-y</span> ppa:apptainer/ppa</span>
+<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get update</span>
+<span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt-get install <span class="at">-y</span> apptainer</span></code></pre></div>
+<p>Verify the installation with a small container:</p>
+<div class="sourceCode" id="cb110"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec docker://alpine cat /etc/alpine-release</span></code></pre></div>
+<p>On a managed HPC system, do not install your own privileged runtime.
+Check available modules first:</p>
+<div class="sourceCode" id="cb111"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> avail <span class="dv">2</span><span class="op">&gt;&amp;</span><span class="dv">1</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-Ei</span> <span class="st">&#39;apptainer|singularity&#39;</span></span>
+<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a><span class="ex">module</span> load apptainer</span>
+<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span></code></pre></div>
+<p>The exact module name is controlled by the cluster.</p>
+<h2 id="verify-the-runtime-and-gpu-allocation">24.2 Verify the runtime
+and GPU allocation</h2>
+<div class="sourceCode" id="cb112"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span></code></pre></div>
+<p>On a scheduler-managed cluster, obtain a GPU allocation before
+running a GPU workload. Do not run heavy computation on a login
+node.</p>
+<h2 id="convert-from-a-registry-image">24.3 Convert from a registry
+image</h2>
+<p>Push <code>gpu-demo:v1</code> to an accessible registry, then
+run:</p>
+<div class="sourceCode" id="cb113"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> pull gpu-demo.sif <span class="dt">\</span></span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>  docker://YOUR_REGISTRY/YOUR_ACCOUNT/gpu-demo:v1</span></code></pre></div>
+<p>Verify:</p>
+<div class="sourceCode" id="cb114"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> inspect gpu-demo.sif</span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> gpu-demo.sif</span></code></pre></div>
+<h2 id="copy-image-and-model-to-the-cluster">24.4 Copy image and model
+to the cluster</h2>
+<p>From the laptop or authorized transfer node:</p>
+<div class="sourceCode" id="cb115"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> gpu-demo.sif CLUSTER_USER@CLUSTER_HOST:~/cuda-cloud-demo/</span>
+<span id="cb115-2"><a href="#cb115-2" aria-hidden="true" tabindex="-1"></a><span class="fu">scp</span> models/SmolLM2-360M-Instruct-Q4_K_M.gguf <span class="dt">\</span></span>
+<span id="cb115-3"><a href="#cb115-3" aria-hidden="true" tabindex="-1"></a>  CLUSTER_USER@CLUSTER_HOST:~/cuda-cloud-demo/models/</span></code></pre></div>
+<h2 id="run-interactively-on-an-allocated-gpu-node">24.5 Run
+interactively on an allocated GPU node</h2>
+<div class="sourceCode" id="cb116"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/cuda-cloud-demo</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> <span class="dt">\</span></span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bind</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models:/models:ro&quot;</span> <span class="dt">\</span></span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a>  gpu-demo.sif</span></code></pre></div>
+<p>The Docker <code>--gpus all</code> flag becomes Apptainer’s
+<code>--nv</code>. The bind-mounted model remains outside the SIF
+image.</p>
+<h2 id="execute-a-specific-command">24.6 Execute a specific command</h2>
+<div class="sourceCode" id="cb117"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec <span class="at">--nv</span> <span class="dt">\</span></span>
+<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bind</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models:/models:ro&quot;</span> <span class="dt">\</span></span>
+<span id="cb117-3"><a href="#cb117-3" aria-hidden="true" tabindex="-1"></a>  gpu-demo.sif <span class="dt">\</span></span>
+<span id="cb117-4"><a href="#cb117-4" aria-hidden="true" tabindex="-1"></a>  python3 /app/app.py</span></code></pre></div>
+<p><code>run</code> uses the image’s declared runscript.
+<code>exec</code> explicitly selects a command.</p>
+<h2 id="slurm-job-script">24.7 Slurm job script</h2>
+<p>Save as <code>gpu-demo.slurm</code>:</p>
+<div class="sourceCode" id="cb118"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=smollm-inference</span></span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --gres=gpu:1</span></span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --cpus-per-task=4</span></span>
+<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=8G</span></span>
+<span id="cb118-6"><a href="#cb118-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=00:10:00</span></span>
+<span id="cb118-7"><a href="#cb118-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --output=smollm-%j.out</span></span>
+<span id="cb118-8"><a href="#cb118-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-9"><a href="#cb118-9" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-euo</span> pipefail</span>
+<span id="cb118-10"><a href="#cb118-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-11"><a href="#cb118-11" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="st">&quot;</span><span class="va">$SLURM_SUBMIT_DIR</span><span class="st">&quot;</span></span>
+<span id="cb118-12"><a href="#cb118-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-13"><a href="#cb118-13" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Job ID: </span><span class="va">$SLURM_JOB_ID</span><span class="st">&quot;</span></span>
+<span id="cb118-14"><a href="#cb118-14" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&quot;Node: </span><span class="va">$(</span><span class="fu">hostname</span><span class="va">)</span><span class="st">&quot;</span></span>
+<span id="cb118-15"><a href="#cb118-15" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span> <span class="at">--query-gpu</span><span class="op">=</span>name,driver_version,memory.total <span class="dt">\</span></span>
+<span id="cb118-16"><a href="#cb118-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">--format</span><span class="op">=</span>csv,noheader</span>
+<span id="cb118-17"><a href="#cb118-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-18"><a href="#cb118-18" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> <span class="dt">\</span></span>
+<span id="cb118-19"><a href="#cb118-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">--bind</span> <span class="st">&quot;</span><span class="va">$PWD</span><span class="st">/models:/models:ro&quot;</span> <span class="dt">\</span></span>
+<span id="cb118-20"><a href="#cb118-20" aria-hidden="true" tabindex="-1"></a>  gpu-demo.sif</span></code></pre></div>
+<p>Submit:</p>
+<div class="sourceCode" id="cb119"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> gpu-demo.slurm</span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">--me</span></span></code></pre></div>
+<p>After completion:</p>
+<div class="sourceCode" id="cb120"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sacct</span> <span class="at">-j</span> JOB_ID <span class="at">--format</span><span class="op">=</span>JobID,State,Elapsed,ExitCode</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span> smollm-JOB_ID.out</span></code></pre></div>
+<p>Cluster partitions, account names, GPU resource syntax, memory
+limits, and modules vary. Use the local scheduler documentation when
+additional <code>#SBATCH</code> fields are required.</p>
+<h1 id="expected-outputs-and-checkpoints">25. Expected Outputs and
+Checkpoints</h1>
+<p>Use checkpoints to decide whether to proceed.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Checkpoint</th>
+<th>Command</th>
+<th>Required evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local driver</td>
+<td><code>nvidia-smi</code></td>
+<td>Local GPU listed</td>
+</tr>
+<tr>
+<td>Local Docker</td>
+<td><code>docker version</code></td>
+<td>Client and server shown</td>
+</tr>
+<tr>
+<td>Local container GPU</td>
+<td>CUDA test container</td>
+<td>GPU listed inside container</td>
+</tr>
+<tr>
+<td>Local inference</td>
+<td><code>docker run ... gpu-demo:v1</code></td>
+<td>GPU offload and generated text</td>
+</tr>
+<tr>
+<td>Cloud VM</td>
+<td><code>gcloud compute instances describe</code></td>
+<td>VM is running with intended type</td>
+</tr>
+<tr>
+<td>Cloud driver</td>
+<td><code>nvidia-smi</code></td>
+<td>Cloud GPU listed</td>
+</tr>
+<tr>
+<td>Cloud container GPU</td>
+<td>CUDA test container</td>
+<td>Cloud GPU listed inside container</td>
+</tr>
+<tr>
+<td>Cloud inference</td>
+<td>Same workload command</td>
+<td>Model loads and generates text</td>
+</tr>
+<tr>
+<td>SSH tunnel API</td>
+<td>Local request to port 8080</td>
+<td>JSON completion response</td>
+</tr>
+<tr>
+<td>Apptainer</td>
+<td><code>apptainer run --nv</code></td>
+<td>Model generates on allocated GPU</td>
+</tr>
+<tr>
+<td>Slurm</td>
+<td><code>sacct</code> and job output</td>
+<td>Completed state and inference output</td>
+</tr>
+<tr>
+<td>Cleanup</td>
+<td>Provider resource lists</td>
+<td>Intended resources stopped or deleted</td>
+</tr>
+</tbody>
+</table>
+<p>Do not proceed past a failed checkpoint. Fix the boundary being
+tested first.</p>
+<h1 id="troubleshooting-command-index">26. Troubleshooting Command
+Index</h1>
+<h2 id="identity-and-project">26.1 Identity and project</h2>
+<div class="sourceCode" id="cb121"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a>gcloud auth list</span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>gcloud config list</span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>gcloud config get-value project</span></code></pre></div>
+<h2 id="vm-and-zone">26.2 VM and zone</h2>
+<div class="sourceCode" id="cb122"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>gcloud compute instances list</span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>gcloud compute instances describe VM_NAME <span class="op">--</span>zone<span class="op">=</span>ZONE</span>
+<span id="cb122-3"><a href="#cb122-3" aria-hidden="true" tabindex="-1"></a>gcloud compute operations list <span class="op">--</span>filter<span class="op">=</span><span class="st">&quot;status!=DONE&quot;</span></span></code></pre></div>
+<h2 id="disk">26.3 Disk</h2>
+<div class="sourceCode" id="cb123"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="fu">df</span> <span class="at">-h</span></span>
+<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> du <span class="at">-xh</span> /var/lib/docker <span class="at">--max-depth</span><span class="op">=</span>1 <span class="dv">2</span><span class="op">&gt;</span>/dev/null <span class="kw">|</span> <span class="fu">sort</span> <span class="at">-h</span></span>
+<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker system df</span></code></pre></div>
+<h2 id="driver">26.4 Driver</h2>
+<div class="sourceCode" id="cb124"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lspci</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-i</span> nvidia</span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lsmod</span> <span class="kw">|</span> <span class="fu">grep</span> nvidia</span></code></pre></div>
+<h2 id="docker">26.5 Docker</h2>
+<div class="sourceCode" id="cb125"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> systemctl status docker <span class="at">--no-pager</span></span>
+<span id="cb125-2"><a href="#cb125-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker version</span>
+<span id="cb125-3"><a href="#cb125-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker info</span>
+<span id="cb125-4"><a href="#cb125-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker ps <span class="at">-a</span></span>
+<span id="cb125-5"><a href="#cb125-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker logs CONTAINER_NAME</span></code></pre></div>
+<h2 id="gpu-inside-docker">26.6 GPU inside Docker</h2>
+<div class="sourceCode" id="cb126"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker run <span class="at">--rm</span> <span class="at">--gpus</span> all <span class="dt">\</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>  nvidia/cuda:12.1.1-base-ubuntu22.04 <span class="dt">\</span></span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>  nvidia-smi</span></code></pre></div>
+<h2 id="image-build">26.7 Image build</h2>
+<div class="sourceCode" id="cb127"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker build <span class="at">--progress</span><span class="op">=</span>plain <span class="at">-t</span> gpu-demo:v1 .</span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker image ls</span>
+<span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker system df</span></code></pre></div>
+<p>If a download stalls specifically inside the build but works on the
+host, compare container networking and host networking. In the recorded
+GCP attempt, this command resolved a stalled large download:</p>
+<div class="sourceCode" id="cb128"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker build <span class="at">--network</span><span class="op">=</span>host <span class="at">-t</span> gpu-demo:v1 .</span></code></pre></div>
+<p>Use it as a diagnosis for that observed condition, not as an
+automatic default.</p>
+<h2 id="server-reachability">26.8 Server reachability</h2>
+<div class="sourceCode" id="cb129"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker ps <span class="at">--filter</span> name=llama-server</span>
+<span id="cb129-2"><a href="#cb129-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker logs llama-server</span>
+<span id="cb129-3"><a href="#cb129-3" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> http://127.0.0.1:8080/health</span>
+<span id="cb129-4"><a href="#cb129-4" aria-hidden="true" tabindex="-1"></a><span class="ex">ss</span> <span class="at">-ltnp</span> <span class="kw">|</span> <span class="fu">grep</span> 8080</span></code></pre></div>
+<h2 id="apptainer">26.9 Apptainer</h2>
+<div class="sourceCode" id="cb130"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> <span class="at">--version</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> inspect gpu-demo.sif</span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> exec <span class="at">--nv</span> gpu-demo.sif nvidia-smi</span></code></pre></div>
+<h1 id="instructor-rehearsal-and-delivery-runbook">27. Instructor
+Rehearsal and Delivery Runbook</h1>
+<p>This runbook reduces the full manual to one ordered path. Every item
+refers to a procedure already explained above.</p>
+<h2 id="one-day-before-delivery">27.1 One day before delivery</h2>
+<p>On the laptop:</p>
+<div class="sourceCode" id="cb131"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>nvidia-smi</span>
+<span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a>docker version</span>
+<span id="cb131-3"><a href="#cb131-3" aria-hidden="true" tabindex="-1"></a>docker image inspect gpu-demo<span class="op">:</span>v1</span>
+<span id="cb131-4"><a href="#cb131-4" aria-hidden="true" tabindex="-1"></a><span class="fu">Get-Item</span> <span class="op">.</span>\models\SmolLM2-360M-Instruct-Q4_K_M<span class="op">.</span><span class="fu">gguf</span></span></code></pre></div>
+<p>Run local inference and retain the output:</p>
+<div class="sourceCode" id="cb132"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a><span class="va">$modelDirectory</span> <span class="op">=</span> <span class="op">(</span><span class="fu">Resolve-Path</span> <span class="op">.</span>\models<span class="op">).</span><span class="fu">Path</span></span>
+<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>docker run <span class="op">--</span>rm <span class="op">--</span>gpus all `</span>
+<span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>mount <span class="st">&quot;type=bind,source=</span><span class="va">$modelDirectory</span><span class="st">,target=/models,readonly&quot;</span> `</span>
+<span id="cb132-4"><a href="#cb132-4" aria-hidden="true" tabindex="-1"></a>  gpu-demo<span class="op">:</span>v1</span></code></pre></div>
+<p>Check the cloud VM state:</p>
+<div class="sourceCode" id="cb133"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>gcloud auth list</span>
+<span id="cb133-2"><a href="#cb133-2" aria-hidden="true" tabindex="-1"></a>gcloud config get-value project</span>
+<span id="cb133-3"><a href="#cb133-3" aria-hidden="true" tabindex="-1"></a>gcloud compute instances describe <span class="va">$vmName</span> <span class="op">--</span>zone<span class="op">=</span><span class="va">$zone</span> `</span>
+<span id="cb133-4"><a href="#cb133-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>format<span class="op">=</span><span class="st">&quot;table(name,status,machineType.basename())&quot;</span></span></code></pre></div>
+<p>If the VM is stopped, start it, connect, and run:</p>
+<div class="sourceCode" id="cb134"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nvidia-smi</span></span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> docker image inspect gpu-demo:v1</span>
+<span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> ~/cuda-cloud-demo/models/</span></code></pre></div>
+<p>Run cloud inference once, then stop the VM after the rehearsal.</p>
+<h2 id="files-to-keep-open-during-the-session">27.2 Files to keep open
+during the session</h2>
+<pre class="text"><code>1. Slides or HTML book
+2. Local PowerShell terminal
+3. VS Code local project
+4. VS Code Remote SSH window or cloud SSH terminal
+5. Local and cloud evidence output
+6. Provider console billing/resource page</code></pre>
+<h2 id="demonstration-sequence">27.3 Demonstration sequence</h2>
+<h3 id="local-workload">Local workload</h3>
+<ol type="1">
+<li>Show <code>app.py</code> and identify model path, prompt, and GPU
+layers.</li>
+<li>Show the Dockerfile and identify base, dependency, copy, and
+command.</li>
+<li>Run <code>nvidia-smi</code> on the host.</li>
+<li>Run the container with the mounted model and
+<code>--gpus all</code>.</li>
+<li>Point to GPU-offload messages and generated output.</li>
+</ol>
+<h3 id="move-to-cloud">Move to cloud</h3>
+<ol type="1">
+<li>Show the GCP VM and its GPU/machine type.</li>
+<li>Connect using SSH or VS Code Remote SSH.</li>
+<li>Run <code>hostname</code> to prove the terminal is remote.</li>
+<li>Run <code>nvidia-smi</code> to identify the cloud GPU.</li>
+<li>Show the same <code>app.py</code> and Dockerfile.</li>
+<li>Run the same container workload.</li>
+<li>Compare local and cloud evidence.</li>
+</ol>
+<h3 id="explain-containerization">Explain containerization</h3>
+<ol type="1">
+<li>Identify Dockerfile, image, and running container.</li>
+<li>Explain why the driver stays on the host.</li>
+<li>Explain the model bind mount.</li>
+<li>Show <code>docker image ls</code>, <code>docker ps</code>, and
+<code>docker inspect</code> only as needed.</li>
+<li>Relate recipe rebuild to registry image transfer.</li>
+</ol>
+<h3 id="connect-to-hpc">Connect to HPC</h3>
+<ol type="1">
+<li>Show the Docker-to-SIF conversion command.</li>
+<li>Show <code>apptainer run --nv</code>.</li>
+<li>Show the Slurm job file.</li>
+<li>Identify which responsibility belongs to Slurm, Apptainer, and
+CUDA.</li>
+</ol>
+<h3 id="finish">Finish</h3>
+<ol type="1">
+<li>Stop the cloud VM.</li>
+<li>Show its stopped status.</li>
+<li>Remind students that persistent resources may still be billed.</li>
+</ol>
+<h2 id="commands-to-avoid-typing-live">27.4 Commands to avoid typing
+live</h2>
+<p>Do not spend live session time downloading the model, installing
+drivers, installing Docker, installing NVIDIA Container Toolkit, or
+building a large image from an empty cache. These operations are part of
+the manual and learning process, but their duration depends on external
+networks and package repositories.</p>
+<h2 id="evidence-pack">27.5 Evidence pack</h2>
+<p>Keep this small set of files:</p>
+<pre class="text"><code>evidence/
+├── local-nvidia-smi.txt
+├── local-inference.txt
+├── cloud-nvidia-smi.txt
+├── cloud-inference.txt
+├── cloud-image-inspect.json
+└── cloud-vm-description.txt</code></pre>
+<p>The evidence pack is not a fallback architecture. It is a record
+proving what was executed and a reference for discussion.</p>
+<h1 id="appendix-a.-essential-commands">Appendix A. Essential
+Commands</h1>
+<div class="sourceCode" id="cb137"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build an image from the Dockerfile in the current directory</span></span>
+<span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> gpu-demo:v1 .</span>
+<span id="cb137-3"><a href="#cb137-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-4"><a href="#cb137-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the workload with access to NVIDIA GPUs</span></span>
+<span id="cb137-5"><a href="#cb137-5" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">--gpus</span> all gpu-demo:v1</span>
+<span id="cb137-6"><a href="#cb137-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-7"><a href="#cb137-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Save an image as a portable archive</span></span>
+<span id="cb137-8"><a href="#cb137-8" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> save <span class="at">-o</span> gpu-demo.tar gpu-demo:v1</span>
+<span id="cb137-9"><a href="#cb137-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-10"><a href="#cb137-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the archive into another Docker installation</span></span>
+<span id="cb137-11"><a href="#cb137-11" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> load <span class="at">-i</span> gpu-demo.tar</span>
+<span id="cb137-12"><a href="#cb137-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb137-13"><a href="#cb137-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Run an Apptainer image with NVIDIA GPU support</span></span>
+<span id="cb137-14"><a href="#cb137-14" aria-hidden="true" tabindex="-1"></a><span class="ex">apptainer</span> run <span class="at">--nv</span> gpu-demo.sif</span></code></pre></div>
+<h1 id="appendix-b.-book-development-notes">Appendix B. Book Development
+Notes</h1>
+<p>This manuscript is the primary source for the book. Session notes,
+scripts, and post-mortems in the repository are evidence and supporting
+material; they should be integrated here rather than published as
+disconnected chapters.</p>
+<p>From the repository root, validate and publish the manuscript
+with:</p>
+<div class="sourceCode" id="cb138"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>powershell <span class="op">-</span>NoProfile <span class="op">-</span>ExecutionPolicy Bypass <span class="op">-</span>File <span class="op">.</span>\book\build<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div>
+<p>The build validates the title, required manual sections, chapter
+structure, and fenced code blocks, then uses Pandoc to generate:</p>
+<pre class="text"><code>book/output/CUDA_TO_CLOUD.html
+book/output/CUDA_TO_CLOUD.docx</code></pre>
+<p>Edit only <code>book/CUDA_TO_CLOUD.md</code>; generated files are
+outputs rather than independent manuscript sources.</p>
+<h1 id="appendix-c.-glossary">Appendix C. Glossary</h1>
+<p><strong>Apptainer:</strong> A container platform designed for HPC and
+shared computing environments; formerly associated with the Singularity
+project and file format.</p>
+<p><strong>Bind mount:</strong> A mapping that exposes an existing host
+file or directory at a path inside a container.</p>
+<p><strong>Build context:</strong> The files made available to a Docker
+image build.</p>
+<p><strong>Cloud GPU VM:</strong> A provider-managed virtual machine
+configured with access to one or more GPUs.</p>
+<p><strong>Container:</strong> An isolated running process environment
+created from an image.</p>
+<p><strong>CUDA:</strong> NVIDIA’s parallel-computing platform and
+programming model for GPU computing.</p>
+<p><strong>Dockerfile:</strong> A text recipe used to build a Docker
+image.</p>
+<p><strong>GPU memory or VRAM:</strong> High-bandwidth memory directly
+associated with a GPU.</p>
+<p><strong>Image:</strong> A packaged, read-only application filesystem
+and configuration used to create containers.</p>
+<p><strong>Inference:</strong> Using a trained model to produce
+predictions or generated output from new input.</p>
+<p><strong>NVIDIA Container Toolkit:</strong> Host-side components that
+connect supported container runtimes to NVIDIA GPUs.</p>
+<p><strong>Object storage:</strong> Storage addressed using objects and
+keys rather than ordinary local filesystem paths.</p>
+<p><strong>Registry:</strong> A service for storing and distributing
+container images.</p>
+<p><strong>SIF:</strong> Singularity Image Format, commonly used as a
+portable Apptainer image file.</p>
+<p><strong>Slurm:</strong> A workload manager used to allocate resources
+and schedule jobs on clusters.</p>
+<p><strong>Spot or interruptible capacity:</strong> Discounted cloud
+capacity that the provider may reclaim; appropriate only for workloads
+designed to tolerate interruption.</p>
+<p><strong>Virtual machine:</strong> An isolated computer environment
+using virtualized hardware and its own guest operating-system
+kernel.</p>
+<p><strong>Workload:</strong> The code, runtime, dependencies, data or
+model, hardware requirements, execution command, and output associated
+with a computation.</p>
+</body>
+</html>

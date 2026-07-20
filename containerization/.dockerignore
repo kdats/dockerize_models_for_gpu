@@ -1,0 +1,7 @@
+.git
+models/
+results/
+*.gguf
+*.tar
+*.sif
+.env

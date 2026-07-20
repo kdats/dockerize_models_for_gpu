@@ -1,0 +1,17 @@
+# Replace the registry placeholders before building.
+Bootstrap: docker
+From: YOUR_REGISTRY/YOUR_ACCOUNT/gpu-demo:v1
+
+%runscript
+    exec python3 /app/app.py "$@"
+
+%labels
+    Author CUDA-to-Cloud Session
+    Description SmolLM GPU inference workload for Apptainer/HPC
+
+%help
+    Mount the model directory and enable NVIDIA GPU support:
+
+      apptainer run --nv \
+        --bind "$PWD/models:/models:ro" \
+        gpu-demo.sif

@@ -1,0 +1,30 @@
+# Models and container artifacts
+*.gguf
+*.safetensors
+*.bin
+*.tar
+*.sif
+
+# Download and build caches
+.cache/
+**/.cache/
+
+# Credentials and SSH material
+.env
+.env.*
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*service-account*.json
+credentials.json
+
+# Runtime output
+results/
+evidence/
+*.log
+
+# Editor and operating-system files
+.vscode/
+.DS_Store
+Thumbs.db
