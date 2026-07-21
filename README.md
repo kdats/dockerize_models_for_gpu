@@ -9,8 +9,8 @@ Start with the [complete book](book/CUDA_TO_CLOUD.md). Generated versions are av
 Prerequisites: NVIDIA driver, Docker, NVIDIA Container Toolkit, Python, and `huggingface_hub`.
 
 ```powershell
-git clone <PRIVATE_REPOSITORY_URL>
-cd sessionpresssidency
+git clone https://github.com/kdats/dockerize_models_for_gpu.git
+cd dockerize_models_for_gpu
 
 python -m pip install huggingface_hub
 python .\containerization\models\download_model.py
@@ -25,6 +25,10 @@ docker run --rm --gpus all `
 ```
 
 Model files, container archives, caches, credentials, and SSH private keys are intentionally excluded from Git.
+
+## License and external components
+
+Original repository code and documentation are available under the [MIT License](LICENSE). External runtimes, cloud services, container images, and model weights retain their own licenses and terms; see [NOTICE.md](NOTICE.md). Cloud GPU resources can incur charges.
 
 ## Rebuild the book
 

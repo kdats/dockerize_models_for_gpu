@@ -28,3 +28,6 @@ evidence/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Local draft pending security and accuracy review
+movingtocloud/GCP-CONSOLE-UI-GUIDE.md
