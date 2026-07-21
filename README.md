@@ -1,6 +1,6 @@
 # CUDA to Cloud Session Kit
 
-Complete material for the 25 July 2026 sessions on moving local GPU workloads to cloud and using Docker/Apptainer for HPC.
+Complete material for  moving local GPU workloads to cloud and using Docker/Apptainer for HPC.
 
 Start with the [complete book](book/CUDA_TO_CLOUD.md). Generated versions are available in `book/output/`.
 
