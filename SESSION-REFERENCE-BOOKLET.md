@@ -419,7 +419,15 @@ The container uses its internal `nvidia-smi` binary, communicates through mounte
 
 # 6. Local Workstation Build, Execution & Image Transfer
 
-Before moving an AI container to the cloud or supercomputer, you must build and validate it locally on your development machine.
+Before moving an AI container to the cloud or supercomputer, you must build and validate it locally on your development machine via llama.cpp
+
+**llama.cpp** is a highly popular, open-source software project written in C and C++ that allows you to run Large Language Models (LLMs)—like Meta's LLaMA—locally on everyday consumer hardware, rather than requiring massive, expensive cloud servers.
+
+Here is a breakdown of why it is widely used:
+
+* **Extremely Lightweight:** It is designed to be highly efficient. It can run AI models using just your computer's standard processor (CPU), but it also supports offloading processing to a graphics card (GPU), such as NVIDIA or Apple Silicon, for significantly faster performance.
+* **Model Compression (Quantization):** It uses a technique called quantization (often formatting models into `.GGUF` files) to shrink the size of massive AI models. This drastically reduces the amount of RAM and VRAM required to run them, making it possible to run capable AI models on a standard laptop.
+* **Privacy and Offline Use:** Because the models run entirely locally on your machine, you do not need an internet connection to use them (once downloaded), and your data/prompts never leave your device.
 
 ### 6.1 Local Application Code Setup (`app.py`)
 Below is the minimal Python inference application using `llama-cpp-python`. Create this file inside your local `containerization/` directory:
