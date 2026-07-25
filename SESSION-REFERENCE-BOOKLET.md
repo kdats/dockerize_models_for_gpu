@@ -913,40 +913,110 @@ sudo docker run --rm --gpus all nvidia/cuda:12.1.1-base-ubuntu22.04 nvidia-smi
 
 # 12. Audience Q&A & Presenter Mastery
 
-Below are the top 12 questions students, researchers, and faculty will ask during your presentation, with fast, authoritative responses:
+Below are the top 12 questions students, researchers, and faculty will ask during your presentation. Click any question during your presentation to reveal the answer!
 
-#### ❓ Q1: "If containers share the host kernel, can I run a Windows container on a Linux host (or vice versa)?"
+<details>
+<summary><b>❓ Q1: "If containers share the host kernel, can I run a Windows container on a Linux host (or vice versa)?"</b></summary>
+<br>
+
 > **Answer**: No. Containers rely directly on the host OS kernel's system calls. A Linux container requires a Linux kernel. When running Docker Desktop on Windows or Mac, Docker silently runs a lightweight Linux Virtual Machine (via WSL2 or HyperKit) under the hood to supply that kernel.
+</details>
 
-#### ❓ Q2: "Does running Python inside a container add performance overhead compared to bare metal?"
+<br>
+
+<details>
+<summary><b>❓ Q2: "Does running Python inside a container add performance overhead compared to bare metal?"</b></summary>
+<br>
+
 > **Answer**: Virtually zero. Unlike Virtual Machines, which translate hardware instructions through a hypervisor, containerized processes execute directly as native processes on the host CPU and GPU. Performance is 99%+ identical to bare metal.
+</details>
 
-#### ❓ Q3: "What happens if two containers try to use the same port (e.g., Port 8080) on the host machine?"
+<br>
+
+<details>
+<summary><b>❓ Q3: "What happens if two containers try to use the same port (e.g., Port 8080) on the host machine?"</b></summary>
+<br>
+
 > **Answer**: Inside their isolated network namespaces, both containers can listen on port 8080 internally. However, when publishing ports to the host (`-p host:container`), each host port can only be bound once. You would map Container A to `-p 8080:8080` and Container B to `-p 8081:8080`.
+</details>
 
-#### ❓ Q4: "Why is my AI Docker image 6 GB to 8 GB when my Python script is only 5 KB?"
+<br>
+
+<details>
+<summary><b>❓ Q4: "Why is my AI Docker image 6 GB to 8 GB when my Python script is only 5 KB?"</b></summary>
+<br>
+
 > **Answer**: The Python script is tiny, but the container image includes the complete user-space operating system baseline (Ubuntu), the Python interpreter, heavy CUDA runtime C++ dynamic libraries (`libcuda.so`, `libcudnn.so`), PyTorch/LLM binaries, and baked-in model weights.
+</details>
 
-#### ❓ Q5: "I edited one line of Python code, and Docker started redownloading all 4 GB of CUDA packages again. Why?"
+<br>
+
+<details>
+<summary><b>❓ Q5: "I edited one line of Python code, and Docker started redownloading all 4 GB of CUDA packages again. Why?"</b></summary>
+<br>
+
 > **Answer**: Docker builds images in sequential read-only layers. If you place `COPY app.py .` near the top of your `Dockerfile` above `RUN pip install`, modifying `app.py` invalidates the build cache for that line and every line below it. **Rule of thumb:** Always put stable dependencies near the top, and your code at the bottom.
+</details>
 
-#### ❓ Q6: "What is the difference between `RUN` and `CMD` in a Dockerfile?"
+<br>
+
+<details>
+<summary><b>❓ Q6: "What is the difference between `RUN` and `CMD` in a Dockerfile?"</b></summary>
+<br>
+
 > **Answer**: `RUN` executes commands **during the build phase** to construct the image layers (e.g., installing packages). `CMD` defines the default command executed **at runtime** when the container actually starts up.
+</details>
 
-#### ❓ Q7: "Do I need to install CUDA Toolkit inside the container if NVIDIA drivers are installed on the host?"
+<br>
+
+<details>
+<summary><b>❓ Q7: "Do I need to install CUDA Toolkit inside the container if NVIDIA drivers are installed on the host?"</b></summary>
+<br>
+
 > **Answer**: You do NOT need kernel drivers inside the container, but the application inside the container still needs user-space CUDA runtime libraries (like `libcuda.so`). That is why we start from base images like `nvidia/cuda:12.1.1-runtime-ubuntu22.04`.
+</details>
 
-#### ❓ Q8: "What does `--gpus all` actually do when I run `docker run`?"
+<br>
+
+<details>
+<summary><b>❓ Q8: "What does `--gpus all` actually do when I run `docker run`?"</b></summary>
+<br>
+
 > **Answer**: It tells the NVIDIA Container Toolkit hook to mount physical host GPU device nodes (`/dev/nvidia0`, `/dev/nvidiactl`, `/dev/nvidia-uvm`) into the container's user space process tree. Without `--gpus all`, the container is completely blind to host GPUs.
+</details>
 
-#### ❓ Q9: "Can two containers share the same GPU at the same time?"
+<br>
+
+<details>
+<summary><b>❓ Q9: "Can two containers share the same GPU at the same time?"</b></summary>
+<br>
+
 > **Answer**: Yes! NVIDIA GPUs support time-slicing and multi-process service (MPS). Multiple containers can submit CUDA kernels to the same GPU simultaneously, provided the total VRAM usage of both containers does not exceed the GPU's memory limit.
+</details>
 
-#### ❓ Q10: "My cloud VM has 50 GB disk space and 15 GB System RAM. Why did my model crash with 'Out of Memory'?"
+<br>
+
+<details>
+<summary><b>❓ Q10: "My cloud VM has 50 GB disk space and 15 GB System RAM. Why did my model crash with 'Out of Memory'?"</b></summary>
+<br>
+
 > **Answer**: You ran out of **VRAM (GPU Memory)**, not disk space or system RAM. Neural network model weights must fit inside the physical GPU's VRAM (e.g., 16 GB on an NVIDIA T4). Disk space stores files, System RAM runs OS processes, but GPU VRAM executes model tensors.
+</details>
 
-#### ❓ Q11: "What is Quantization (e.g., GGUF Q4_K_M) and why do we use it?"
+<br>
+
+<details>
+<summary><b>❓ Q11: "What is Quantization (e.g., GGUF Q4_K_M) and why do we use it?"</b></summary>
+<br>
+
 > **Answer**: Quantization compresses floating-point model weights from 16-bit precision (`FP16`) down to 4-bit integers (`INT4`). This reduces the model's VRAM footprint by ~75% with minimal loss in accuracy, allowing us to run AI models on standard cost-effective GPUs like the T4.
+</details>
 
-#### ❓ Q12: "When should I use a single `docker run` command versus Docker Compose?"
+<br>
+
+<details>
+<summary><b>❓ Q12: "When should I use a single `docker run` command versus Docker Compose?"</b></summary>
+<br>
+
 > **Answer**: Use `docker run` for single, standalone tasks. Use **Docker Compose** when your application relies on multiple connected microservices—such as a React Frontend container communicating with a Python AI Backend container and a Vector Database container.
+</details>
