@@ -167,7 +167,7 @@ CMD ["python3", "app.py"]
 - `CMD`: Provides default arguments for executing the container. Can be overridden at runtime.
 
 ### 3.3 Image Layer Caching & Context Optimization
-Docker builds images using a layered filesystem (Overlay2). Each instruction in a `Dockerfile` creates a new immutable layer.
+Docker builds images using a layered filesystem. Each instruction in a `Dockerfile` creates a new immutable layer.
 
 ```text
 [ Layer 1: Base Ubuntu 22.04 + CUDA Runtime ] ------> Cached (Rarely changes)
