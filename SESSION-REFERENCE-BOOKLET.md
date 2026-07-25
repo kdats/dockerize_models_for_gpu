@@ -120,6 +120,8 @@ A container is simply a isolated set of user-space processes running directly on
 
 # 3. Deep Dive into Docker Architecture & Recipes
 
+https://docs.docker.com/desktop/setup/install/windows-install/ 
+
 ### 3.1 Anatomy of a Production-Grade Dockerfile
 A `Dockerfile` is an executable specification for constructing a read-only container image.
 
