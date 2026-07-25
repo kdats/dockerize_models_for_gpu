@@ -83,6 +83,20 @@ $$\text{Workload} = \text{Application Code} + \text{Runtime Dependencies} + \tex
         VIRTUAL MACHINES (VMs)                           CONTAINERS
 ```
 
+### The Docker Deamon
+
+If Docker were a restaurant, the **Docker daemon** is the **head chef** working tirelessly in the kitchen. It is the invisible background program that actually does all the heavy lifting to make your containers run.
+
+### The Restaurant Analogy
+
+When you use Docker, there are usually two main parts working together:
+
+* **The Docker Client (The Waiter):** This is the part you interact with. When you type a command into your computer like `"docker run"` to start a container, you are placing an order with the waiter.
+* **The Docker Daemon (The Head Chef):** The waiter doesn't actually cook your food; they just take your order to the kitchen. The Docker daemon receives your command and gets to work. It fetches the ingredients (downloads the software), prepares the meal (builds the container), and manages the kitchen (makes sure the container keeps running securely).
+
+Because the daemon is the brain controlling how containers are built and run, you have to tell *it* about your shiny new NVIDIA Toolkit so it knows to use it!
+
+
 | Architectural Feature | Virtual Machines (VMs) | Containers (Docker / Apptainer) |
 | :--- | :--- | :--- |
 | **Abstraction Layer** | Hardware-level virtualization | Operating System (Kernel) user-space isolation |
